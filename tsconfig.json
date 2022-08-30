@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "removeComments": true,
-    "outDir": "build",
+    "outDir": "dist",
 
     // Module resolution
     "baseUrl": "./", // Lets you set a base directory to resolve non-absolute module names.
@@ -30,5 +30,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "exclude": ["node_modules"]
 }

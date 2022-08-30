@@ -1,17 +1,17 @@
 {
   "name": "js-client-sdk-repo-manager",
   "version": "1.0.0",
-  "description": "Paper.xyz js client for SDK.",
+  "description": "Paper.xyz js sdk for Checkout Elements",
   "files": [
     "dist/**/*.ts"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "patch": "cd ./dist && npm version patch && cd ../",
-    "minor": "cd ./dist && npm version minor && cd ../",
-    "major": "cd ./dist && npm version major && cd ../",
-    "release": "cd ./dist && npm publish && cd ../"
+    "patch": "cd ./dist && npm version patch && cp package.json ../release-package.json && cd ../",
+    "minor": "cd ./dist && npm version minor && cp package.json ../release-package.json && cd ../",
+    "major": "cd ./dist && npm version major && cp package.json ../release-package.json && cd ../",
+    "release": "npm run build && cp release-package.json ./dist/package.json && cd ./dist && npm publish && cd ../"
   },
   "keywords": [],
   "author": "Paper.xyz <team@paper.xyz>",
@@ -24,5 +24,8 @@
     "@types/node": "^18.7.11",
     "tsup": "^6.2.2",
     "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "ethers": "^5.7.0"
   }
 }
