@@ -2,6 +2,7 @@ import {
   CHECKOUT_WITH_CARD_IFRAME_URL,
   DEFAULT_BRAND_OPTIONS,
   PAPER_APP_URL,
+  PAPER_APP_URL_ALT,
 } from "../constants/settings";
 import { KycModal, ReviewResult } from "../interfaces/CheckoutWithCard";
 import {
@@ -63,7 +64,7 @@ export function createCheckoutWithCardMessageHandler({
 }: CheckoutWithCardMessageHandlerArgs) {
   return (event: MessageEvent) => {
     console.log("event", event);
-    if (!event.origin.startsWith(PAPER_APP_URL)) {
+    if (!event.origin.startsWith(PAPER_APP_URL_ALT)) {
       return;
     }
     const data = event.data;
@@ -94,7 +95,7 @@ export function createCheckoutWithCardMessageHandler({
 
       case "openModalWithUrl":
         console.log("openModalWithUrl", data.url);
-        onOpenKycModal(data.url);
+        onOpenKycModal({ iframeLink: data.url });
         break;
 
       case "completedSDKModal":

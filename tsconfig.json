@@ -1,31 +1,44 @@
 {
+  // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
   "compilerOptions": {
-    /* Basic Options */
-    "target": "es6",
-    "module": "commonjs",
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "allowJs": true,
+    "downlevelIteration": true,
+    "isolatedModules": true,
+    "lib": ["es2019", "DOM.Iterable", "dom"],
+    "module": "esnext",
+    "noImplicitAny": true,
     "resolveJsonModule": true,
-    "experimentalDecorators": true,
-    "removeComments": true,
-    "outDir": "dist",
-
-    "esModuleInterop": true, // fixes some issues TS originally had with the ES6 spec where TypeScript treats CommonJS/AMD/UMD modules similar to ES6 module
-    "moduleResolution": "node", // Pretty much always node for modern JS. Other option is "classic"
-    "paths": {}, // A series of entries which re-map imports to lookup locations relative to the baseUrl
-
-    // Strict Checks
+    "importHelpers": true,
+    // output .d.ts declaration files for consumers
+    "declaration": true,
+    // output .js.map sourcemap files for consumers
+    "sourceMap": false,
+    // match output dir to input dir. e.g. dist/index instead of dist/src/index
+    "rootDir": "./src",
+    "outDir": "./dist",
+    // stricter type-checking for stronger correctness. Recommended by TS
     "strict": true,
-    "allowUnreachableCode": false, // pick up dead code paths
-
-    // Linter Checks
-    "noFallthroughCasesInSwitch": true,
+    // linter checks for common issues
     "noImplicitReturns": true,
-    "noImplicitThis": true,
-    // "noImplicitOverride": true,
-    // "noUncheckedIndexedAccess": true, // accessing index must always check for undefined
-    "noUnusedLocals": true, // Report errors on unused local variables.
-    "noUnusedParameters": true, // Report errors on unused parameters in functions
-    "forceConsistentCasingInFileNames": true
+    "noFallthroughCasesInSwitch": true,
+    // noUnused* overlap with @typescript-eslint/no-unused-vars, can disable if duplicative
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // use Node's module resolution algorithm, instead of the legacy TS one
+    "moduleResolution": "node",
+    // interop between ESM and CJS modules. Recommended by TS
+    "esModuleInterop": true,
+    // significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS
+    "skipLibCheck": true,
+    // error out if import and file system have a casing mismatch. Recommended by TS
+    "forceConsistentCasingInFileNames": true,
+    "emitDeclarationOnly": true,
+    "target": "ES6",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictNullChecks": true,
+    "noImplicitOverride": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]

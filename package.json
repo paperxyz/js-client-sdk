@@ -8,7 +8,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "compile:lib": "tsup",
+    "compile:lib": "tsup --format esm,cjs",
     "dev:lib": "yarn compile:lib --env.NODE_ENV development --watch",
     "dev:types": "yarn build:types -w",
     "dev": "concurrently \"yarn dev:lib\" \"yarn dev:types\"",
