@@ -1,7 +1,7 @@
 import {
   ICustomizationOptions,
   Locale,
-} from "src/interfaces/CommonCheckoutElementTypes";
+} from "../interfaces/CommonCheckoutElementTypes";
 
 export class LinksManager {
   private link: URL;

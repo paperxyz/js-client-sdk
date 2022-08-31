@@ -1,7 +1,7 @@
 import {
   PaperSDKError,
   PayWithCryptoErrorCode,
-} from "src/interfaces/PaperSDKError";
+} from "..//interfaces/PaperSDKError";
 
 export interface IErrorObject {
   isErrorObject: boolean;
