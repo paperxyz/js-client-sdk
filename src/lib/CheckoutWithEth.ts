@@ -3,18 +3,18 @@ import {
   CHECKOUT_WITH_ETH_IFRAME_URL,
   DEFAULT_BRAND_OPTIONS,
   PAPER_APP_URL,
-} from "src/constants/settings";
+} from "../constants/settings";
 import {
   ICustomizationOptions,
   Locale,
-} from "src/interfaces/CommonCheckoutElementTypes";
+} from "../interfaces/CommonCheckoutElementTypes";
 import {
   PaperSDKError,
   PayWithCryptoErrorCode,
-} from "src/interfaces/PaperSDKError";
-import { handlePayWithCryptoError } from "src/utils/handleCheckoutWithEthError";
-import { LinksManager } from "src/utils/LinksManager";
-import { postMessageToIframe } from "src/utils/postMessageToIframe";
+} from "../interfaces/PaperSDKError";
+import { handlePayWithCryptoError } from "../utils/handleCheckoutWithEthError";
+import { LinksManager } from "../utils/LinksManager";
+import { postMessageToIframe } from "../utils/postMessageToIframe";
 import {
   PaperPaymentElement,
   PaperPaymentElementConstructorArgs,

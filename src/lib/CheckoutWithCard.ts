@@ -2,15 +2,15 @@ import {
   CHECKOUT_WITH_CARD_IFRAME_URL,
   DEFAULT_BRAND_OPTIONS,
   PAPER_APP_URL,
-} from "src/constants/settings";
-import { KycModal, ReviewResult } from "src/interfaces/CheckoutWithCard";
+} from "../constants/settings";
+import { KycModal, ReviewResult } from "../interfaces/CheckoutWithCard";
 import {
   ICustomizationOptions,
   Locale,
-} from "src/interfaces/CommonCheckoutElementTypes";
-import { PaperSDKError, PaperSDKErrorCode } from "src/interfaces/PaperSDKError";
-import { LinksManager } from "src/utils/LinksManager";
-import { postMessageToIframe } from "src/utils/postMessageToIframe";
+} from "../interfaces/CommonCheckoutElementTypes";
+import { PaperSDKError, PaperSDKErrorCode } from "../interfaces/PaperSDKError";
+import { LinksManager } from "../utils/LinksManager";
+import { postMessageToIframe } from "../utils/postMessageToIframe";
 import {
   PaperPaymentElement,
   PaperPaymentElementConstructorArgs,
