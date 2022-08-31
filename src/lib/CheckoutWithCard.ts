@@ -63,7 +63,6 @@ export function createCheckoutWithCardMessageHandler({
   onPaymentSuccess,
 }: CheckoutWithCardMessageHandlerArgs) {
   return (event: MessageEvent) => {
-    console.log("event", event);
     if (!event.origin.startsWith(PAPER_APP_URL_ALT)) {
       return;
     }
@@ -94,7 +93,6 @@ export function createCheckoutWithCardMessageHandler({
         break;
 
       case "openModalWithUrl":
-        console.log("openModalWithUrl", data.url);
         onOpenKycModal({ iframeLink: data.url });
         break;
 
