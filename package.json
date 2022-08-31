@@ -1,17 +1,21 @@
 {
-  "name": "js-client-sdk-repo-manager",
-  "version": "1.0.0",
+  "name": "@paperxyz/js-client-sdk",
   "description": "Paper.xyz js sdk for Checkout Elements",
+  "version": "0.0.7",
   "files": [
-    "dist/**/*.ts"
+    "dist/**/*"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "patch": "cd ./dist && npm version patch && cp package.json ../release-package.json && cd ../",
-    "minor": "cd ./dist && npm version minor && cp package.json ../release-package.json && cd ../",
-    "major": "cd ./dist && npm version major && cp package.json ../release-package.json && cd ../",
-    "release": "npm run build && cp release-package.json ./dist/package.json && cd ./dist && npm publish && cd ../"
+    "compile:lib": "tsup",
+    "dev:lib": "yarn compile:lib --env.NODE_ENV development --watch",
+    "dev:types": "yarn build:types -w",
+    "dev": "concurrently \"yarn dev:lib\" \"yarn dev:types\"",
+    "build:types": "yarn tsc",
+    "build:lib": "yarn compile:lib --env.NODE_ENV production --minify",
+    "build": "yarn build:lib && yarn build:types",
+    "release": "npm run build && npm publish"
   },
   "keywords": [],
   "author": "Paper.xyz <team@paper.xyz>",
@@ -22,6 +26,7 @@
   "homepage": "https://github.com/paperxyz/js-client-sdk",
   "devDependencies": {
     "@types/node": "^18.7.11",
+    "concurrently": "^7.3.0",
     "tsup": "^6.2.2",
     "typescript": "^4.7.4"
   },

@@ -4,18 +4,24 @@ import {
   DEFAULT_BRAND_OPTIONS,
   PAPER_APP_URL,
 } from "src/constants/settings";
-import { ICustomizationOptions } from "src/interfaces/ICustomizationOptions";
-import { Locale } from "src/interfaces/Locale";
+import {
+  ICustomizationOptions,
+  Locale,
+} from "src/interfaces/CommonCheckoutElementTypes";
 import {
   PaperSDKError,
   PayWithCryptoErrorCode,
 } from "src/interfaces/PaperSDKError";
-import { addStylingOptions } from "src/utils/addStylingOptions";
 import { handlePayWithCryptoError } from "src/utils/handleCheckoutWithEthError";
+import { LinksManager } from "src/utils/LinksManager";
 import { postMessageToIframe } from "src/utils/postMessageToIframe";
+import {
+  PaperPaymentElement,
+  PaperPaymentElementConstructorArgs,
+} from "./CreatePaymentElement";
 
-export interface ICheckoutWithEthMessageHandler {
-  iFrame: HTMLIFrameElement;
+export interface CheckoutWithEthMessageHandlerArgs {
+  iframe: HTMLIFrameElement;
   onSuccess?: ({
     transactionResponse,
     transactionId,
@@ -31,14 +37,14 @@ export interface ICheckoutWithEthMessageHandler {
   payingWalletSigner: ethers.Signer;
 }
 
-export function checkoutWithEthMessageHandler({
-  iFrame,
+export function createCheckoutWithEthMessageHandler({
+  iframe,
   onError,
   onSuccess,
   suppressErrorToast,
   setUpUserPayingWalletSigner,
   payingWalletSigner,
-}: ICheckoutWithEthMessageHandler) {
+}: CheckoutWithEthMessageHandlerArgs) {
   return async (event: MessageEvent) => {
     if (!event.origin.startsWith(PAPER_APP_URL)) {
       return;
@@ -54,7 +60,7 @@ export function checkoutWithEthMessageHandler({
           } catch (error) {
             console.log("error setting up signer", error);
             handlePayWithCryptoError(error as Error, onError, (errorObject) => {
-              postMessageToIframe(iFrame, "payWithEthError", {
+              postMessageToIframe(iframe, "payWithEthError", {
                 error: errorObject,
                 suppressErrorToast,
               });
@@ -66,7 +72,6 @@ export function checkoutWithEthMessageHandler({
         // try switching network first if needed or supported
         const chainId = await payingWalletSigner.getChainId();
         if (chainId !== data.chainId) {
-          console.log("error switching network");
           handlePayWithCryptoError(
             {
               isErrorObject: true,
@@ -75,7 +80,7 @@ export function checkoutWithEthMessageHandler({
             },
             onError,
             (errorObject) => {
-              postMessageToIframe(iFrame, "payWithEthError", {
+              postMessageToIframe(iframe, "payWithEthError", {
                 error: errorObject,
                 suppressErrorToast,
               });
@@ -100,7 +105,7 @@ export function checkoutWithEthMessageHandler({
             });
           }
           if (result) {
-            postMessageToIframe(iFrame, "paymentSuccess", {
+            postMessageToIframe(iframe, "paymentSuccess", {
               suppressErrorToast,
               transactionHash: result.hash,
             });
@@ -108,7 +113,7 @@ export function checkoutWithEthMessageHandler({
         } catch (error) {
           console.log("error sending funds", error);
           handlePayWithCryptoError(error as Error, onError, (errorObject) => {
-            postMessageToIframe(iFrame, "payWithEthError", {
+            postMessageToIframe(iframe, "payWithEthError", {
               error: errorObject,
               suppressErrorToast,
             });
@@ -117,8 +122,8 @@ export function checkoutWithEthMessageHandler({
         break;
       }
       case "sizing": {
-        iFrame.style.height = data.height + "px";
-        iFrame.style.maxHeight = data.height + "px";
+        iframe.style.height = data.height + "px";
+        iframe.style.maxHeight = data.height + "px";
         break;
       }
       default:
@@ -127,9 +132,9 @@ export function checkoutWithEthMessageHandler({
   };
 }
 
-export interface ICheckoutWithEthLink {
+export interface CheckoutWithEthLinkArgs {
   sdkClientSecret: string;
-
+  appName?: string;
   payingWalletSigner: ethers.Signer;
   receivingWalletType?:
     | "WalletConnect"
@@ -147,110 +152,80 @@ export async function createCheckoutWithEthLink({
   payingWalletSigner,
   receivingWalletType,
   showConnectWalletOptions = false,
+  appName,
   locale,
   options = {
     ...DEFAULT_BRAND_OPTIONS,
   },
-}: ICheckoutWithEthLink) {
-  const checkoutWithEthUrl = new URL(
+}: CheckoutWithEthLinkArgs) {
+  const checkoutWithEthUrlBase = new URL(
     CHECKOUT_WITH_ETH_IFRAME_URL,
     PAPER_APP_URL
   );
-  checkoutWithEthUrl.searchParams.append("sdkClientSecret", sdkClientSecret);
-
   const address = await payingWalletSigner.getAddress();
-  checkoutWithEthUrl.searchParams.append("payerWalletAddress", address);
-  checkoutWithEthUrl.searchParams.append("recipientWalletAddress", address);
 
-  checkoutWithEthUrl.searchParams.append(
-    "showConnectWalletOptions",
-    showConnectWalletOptions.toString()
-  );
-  checkoutWithEthUrl.searchParams.append(
-    "walletType",
-    receivingWalletType || "Preset"
-  );
+  const checkoutWithEthLink = new LinksManager(checkoutWithEthUrlBase);
+  checkoutWithEthLink.addClientSecret(sdkClientSecret);
+  checkoutWithEthLink.addRecipientWalletAddress(address);
+  checkoutWithEthLink.addPayerWalletAddress(address);
+  checkoutWithEthLink.addReceivingWalletType(receivingWalletType);
+  checkoutWithEthLink.addAppName(appName);
+  checkoutWithEthLink.addShowConnectWalletOptions(showConnectWalletOptions);
+  checkoutWithEthLink.addStylingOptions(options);
+  checkoutWithEthLink.addLocale(locale);
+  checkoutWithEthLink.addDate();
 
-  checkoutWithEthUrl.searchParams.append(
-    "locale",
-    locale?.toString() || Locale.EN.toString()
-  );
-  addStylingOptions(checkoutWithEthUrl, options);
-
-  // Add timestamp to prevent loading a cached page.
-  checkoutWithEthUrl.searchParams.append("date", Date.now().toString());
-
-  return checkoutWithEthUrl;
+  return checkoutWithEthLink.getLink();
 }
 
-export type CreateCheckoutWithEthType = Omit<
-  ICheckoutWithEthMessageHandler,
-  "iFrame"
+export type CheckoutWithEthElementArgs = Omit<
+  CheckoutWithEthMessageHandlerArgs,
+  "iframe"
 > &
-  ICheckoutWithEthLink & {
-    onLoad?: (event?: Event) => void;
-  };
+  CheckoutWithEthLinkArgs &
+  PaperPaymentElementConstructorArgs;
 
-export async function createCheckoutWithEth(
-  {
-    sdkClientSecret,
-    onSuccess,
-    suppressErrorToast,
-    onError,
-    onLoad,
-    setUpUserPayingWalletSigner,
-    payingWalletSigner,
-    receivingWalletType,
-    showConnectWalletOptions,
-    locale,
-    options,
-  }: CreateCheckoutWithEthType,
-  elementOrId?: string | HTMLElement
-): Promise<HTMLIFrameElement> {
-  const iFrame = document.createElement("iframe");
-  window.addEventListener(
-    "message",
-    checkoutWithEthMessageHandler({
-      iFrame,
+export async function createCheckoutWithEthElement({
+  sdkClientSecret,
+  onSuccess,
+  suppressErrorToast,
+  onError,
+  onLoad,
+  setUpUserPayingWalletSigner,
+  payingWalletSigner,
+  receivingWalletType,
+  appName,
+  showConnectWalletOptions,
+  locale,
+  options,
+  elementOrId,
+}: CheckoutWithEthElementArgs): Promise<HTMLIFrameElement> {
+  const checkoutWithEthId = "checkout-with-eth-iframe";
+  const checkoutWithEthMessageHandler = (iframe: HTMLIFrameElement) =>
+    createCheckoutWithEthMessageHandler({
+      iframe,
       setUpUserPayingWalletSigner,
       payingWalletSigner,
       onSuccess,
       onError,
       suppressErrorToast,
-    })
-  );
+    });
   const checkoutWithEthUrl = await createCheckoutWithEthLink({
     payingWalletSigner,
     sdkClientSecret,
+    appName,
     locale,
     options,
     receivingWalletType,
     showConnectWalletOptions,
   });
-  iFrame.src = checkoutWithEthUrl.href;
-  iFrame.id = "checkout-with-eth-iframe";
-  iFrame.allow = "transparency";
-  iFrame.setAttribute(
-    "style",
-    "margin-left:auto; margin-right:auto; height:350px; width:100%; transition-property:all; transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1); transition-duration:150ms;"
-  );
-  iFrame.onload = (event: Event) => {
-    if (onLoad) {
-      onLoad(event);
-    }
-  };
-
-  if (!elementOrId) {
-    return iFrame;
-  }
-  let container: HTMLElement | string = elementOrId;
-  if (typeof container === "string") {
-    const domElement = document.getElementById(container);
-    if (!domElement) {
-      throw new Error("Invalid id given");
-    }
-    container = domElement;
-  }
-
-  return container.appendChild(iFrame);
+  const paymentElement = new PaperPaymentElement({
+    onLoad,
+    elementOrId,
+  });
+  return paymentElement.createPaymentElement({
+    handler: checkoutWithEthMessageHandler,
+    iframeId: checkoutWithEthId,
+    link: checkoutWithEthUrl,
+  });
 }

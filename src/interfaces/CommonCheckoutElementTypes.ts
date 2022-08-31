@@ -5,3 +5,8 @@ export interface ICustomizationOptions {
   borderRadius?: number;
   fontFamily?: string;
 }
+
+export enum Locale {
+  EN = "en",
+  FR = "fr",
+}
