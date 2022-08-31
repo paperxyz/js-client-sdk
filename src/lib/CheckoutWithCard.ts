@@ -1,7 +1,6 @@
 import {
   CHECKOUT_WITH_CARD_IFRAME_URL,
   DEFAULT_BRAND_OPTIONS,
-  PAPER_APP_URL,
   PAPER_APP_URL_ALT,
 } from "../constants/settings";
 import { KycModal, ReviewResult } from "../interfaces/CheckoutWithCard";
@@ -16,6 +15,8 @@ import {
   PaperPaymentElement,
   PaperPaymentElementConstructorArgs,
 } from "./CreatePaymentElement";
+
+const paperDomain = PAPER_APP_URL_ALT;
 
 export interface CheckoutWithCardLinkArgs {
   sdkClientSecret: string;
@@ -32,7 +33,7 @@ export function createCheckoutWithCardLink({
 }: CheckoutWithCardLinkArgs) {
   const CheckoutWithCardUrlBase = new URL(
     CHECKOUT_WITH_CARD_IFRAME_URL,
-    PAPER_APP_URL
+    paperDomain
   );
 
   const checkoutWithCardLink = new LinksManager(CheckoutWithCardUrlBase);
@@ -63,7 +64,7 @@ export function createCheckoutWithCardMessageHandler({
   onPaymentSuccess,
 }: CheckoutWithCardMessageHandlerArgs) {
   return (event: MessageEvent) => {
-    if (!event.origin.startsWith(PAPER_APP_URL_ALT)) {
+    if (!event.origin.startsWith(paperDomain)) {
       return;
     }
     const data = event.data;
