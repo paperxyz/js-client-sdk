@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 import {
   CHECKOUT_WITH_ETH_IFRAME_URL,
   DEFAULT_BRAND_OPTIONS,
-  PAPER_APP_URL,
   PAPER_APP_URL_ALT,
 } from "../constants/settings";
 import {
@@ -50,7 +49,7 @@ export function createCheckoutWithEthMessageHandler({
   payingWalletSigner,
 }: CheckoutWithEthMessageHandlerArgs) {
   return async (event: MessageEvent) => {
-    if (!event.origin.startsWith(PAPER_APP_URL)) {
+    if (!event.origin.startsWith(PAPER_APP_URL_ALT)) {
       return;
     }
     const data = event.data;
