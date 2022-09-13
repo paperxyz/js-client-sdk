@@ -23,7 +23,6 @@ export class PaperPaymentElement {
     iframeId: string;
   }) {
     const iframe = document.createElement("iframe");
-    window.addEventListener("message", handler(iframe));
     iframe.src = link.href;
     iframe.id = iframeId;
     iframe.setAttribute(
@@ -37,8 +36,10 @@ export class PaperPaymentElement {
     };
 
     if (!this.elementOrId) {
+      window.addEventListener("message", handler(iframe));
       return iframe;
     }
+
     let container: HTMLElement | string = this.elementOrId;
     if (typeof container === "string") {
       const domElement = document.getElementById(container);
@@ -47,6 +48,7 @@ export class PaperPaymentElement {
       }
       container = domElement;
     }
+
     const existing: HTMLIFrameElement | null = container.querySelector(
       "#" + iframeId
     );
@@ -58,6 +60,8 @@ export class PaperPaymentElement {
       existing.src = link.href;
       return existing;
     }
+
+    window.addEventListener("message", handler(iframe));
     return container.appendChild(iframe);
   }
 }
