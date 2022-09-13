@@ -3,6 +3,7 @@ import {
   CHECKOUT_WITH_ETH_IFRAME_URL,
   DEFAULT_BRAND_OPTIONS,
   PAPER_APP_URL,
+  PAPER_APP_URL_ALT,
 } from "../constants/settings";
 import {
   ICustomizationOptions,
@@ -20,6 +21,8 @@ import {
   PaperPaymentElementConstructorArgs,
 } from "./CreatePaymentElement";
 
+const PAY_WITH_ETH_ERROR = "payWithEthError";
+
 export interface CheckoutWithEthMessageHandlerArgs {
   iframe: HTMLIFrameElement;
   onSuccess?: ({
@@ -33,6 +36,7 @@ export interface CheckoutWithEthMessageHandlerArgs {
   suppressErrorToast: boolean;
   setUpUserPayingWalletSigner?: (args: {
     chainId: number;
+    chainName?: string;
   }) => void | Promise<void>;
   payingWalletSigner: ethers.Signer;
 }
@@ -52,15 +56,32 @@ export function createCheckoutWithEthMessageHandler({
     const data = event.data;
     switch (data.eventType) {
       case "payWithEth": {
+        if (data.error) {
+          handlePayWithCryptoError(
+            new Error(data.error) as Error,
+            onError,
+            (errorObject) => {
+              postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
+                error: errorObject,
+                suppressErrorToast,
+              });
+            }
+          );
+          return;
+        }
+
         // Allows Dev's to inject any chain switching for their custom signer here.
         if (setUpUserPayingWalletSigner) {
           try {
             console.log("setting up signer");
-            await setUpUserPayingWalletSigner({ chainId: data.chainId });
+            await setUpUserPayingWalletSigner({
+              chainId: data.chainId,
+              chainName: data.chainName,
+            });
           } catch (error) {
             console.log("error setting up signer", error);
             handlePayWithCryptoError(error as Error, onError, (errorObject) => {
-              postMessageToIframe(iframe, "payWithEthError", {
+              postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
                 error: errorObject,
                 suppressErrorToast,
               });
@@ -80,7 +101,7 @@ export function createCheckoutWithEthMessageHandler({
             },
             onError,
             (errorObject) => {
-              postMessageToIframe(iframe, "payWithEthError", {
+              postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
                 error: errorObject,
                 suppressErrorToast,
               });
@@ -113,7 +134,7 @@ export function createCheckoutWithEthMessageHandler({
         } catch (error) {
           console.log("error sending funds", error);
           handlePayWithCryptoError(error as Error, onError, (errorObject) => {
-            postMessageToIframe(iframe, "payWithEthError", {
+            postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
               error: errorObject,
               suppressErrorToast,
             });
@@ -160,7 +181,7 @@ export async function createCheckoutWithEthLink({
 }: CheckoutWithEthLinkArgs) {
   const checkoutWithEthUrlBase = new URL(
     CHECKOUT_WITH_ETH_IFRAME_URL,
-    PAPER_APP_URL
+    PAPER_APP_URL_ALT
   );
   const address = await payingWalletSigner.getAddress();
 
