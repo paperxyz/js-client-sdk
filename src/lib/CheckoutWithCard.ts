@@ -41,7 +41,6 @@ export function createCheckoutWithCardLink({
   checkoutWithCardLink.addStylingOptions(options);
   checkoutWithCardLink.addLocale(locale);
   checkoutWithCardLink.addAppName(appName);
-  checkoutWithCardLink.addDate();
 
   return checkoutWithCardLink.getLink();
 }

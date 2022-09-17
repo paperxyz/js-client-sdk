@@ -20,7 +20,86 @@ import {
   PaperPaymentElementConstructorArgs,
 } from "./CreatePaymentElement";
 
-const PAY_WITH_ETH_ERROR = "payWithEthError";
+export const PAY_WITH_ETH_ERROR = "payWithEthError";
+
+export async function checkAndSendEth({
+  data,
+  iframe,
+  payingWalletSigner,
+  suppressErrorToast,
+  onError,
+  onSuccess,
+}: {
+  payingWalletSigner: ethers.Signer;
+  data: {
+    chainId: number;
+    chainName: string;
+    blob: string;
+    paymentAddress: string;
+    value: string;
+    transactionId: string;
+  };
+  suppressErrorToast: boolean;
+  iframe: HTMLIFrameElement;
+  onSuccess?: ({
+    transactionResponse,
+    transactionId,
+  }: {
+    transactionResponse: ethers.providers.TransactionResponse;
+    transactionId: string;
+  }) => void;
+  onError?: (error: PaperSDKError) => void;
+}) {
+  try {
+    const chainId = await payingWalletSigner.getChainId();
+    if (chainId !== data.chainId) {
+      throw {
+        isErrorObject: true,
+        title: PayWithCryptoErrorCode.WrongChain,
+        description: `Please change to ${data.chainName} to proceed.`,
+      };
+    }
+  } catch (e) {
+    handlePayWithCryptoError(e as Error, onError, (errorObject) => {
+      postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
+        error: errorObject,
+        suppressErrorToast,
+      });
+    });
+    return;
+  }
+
+  // send the transaction
+  try {
+    console.log("sending funds");
+    const result = await payingWalletSigner.sendTransaction({
+      chainId: data.chainId,
+      data: data.blob,
+      to: data.paymentAddress,
+      value: data.value,
+    });
+    if (onSuccess && result) {
+      onSuccess({
+        transactionResponse: result,
+        transactionId: data.transactionId,
+      });
+    }
+    if (result) {
+      postMessageToIframe(iframe, "paymentSuccess", {
+        suppressErrorToast,
+        transactionHash: result.hash,
+      });
+    }
+  } catch (error) {
+    console.log("error sending funds", error);
+    handlePayWithCryptoError(error as Error, onError, (errorObject) => {
+      postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
+        error: errorObject,
+        suppressErrorToast,
+      });
+    });
+  }
+}
 
 export interface CheckoutWithEthMessageHandlerArgs {
   iframe: HTMLIFrameElement;
@@ -32,7 +111,7 @@ export interface CheckoutWithEthMessageHandlerArgs {
     transactionId: string;
   }) => void;
   onError?: (error: PaperSDKError) => void;
-  suppressErrorToast: boolean;
+  suppressErrorToast?: boolean;
   setUpUserPayingWalletSigner?: (args: {
     chainId: number;
     chainName?: string;
@@ -44,7 +123,7 @@ export function createCheckoutWithEthMessageHandler({
   iframe,
   onError,
   onSuccess,
-  suppressErrorToast,
+  suppressErrorToast = false,
   setUpUserPayingWalletSigner,
   payingWalletSigner,
 }: CheckoutWithEthMessageHandlerArgs) {
@@ -88,60 +167,17 @@ export function createCheckoutWithEthMessageHandler({
             return;
           }
         }
-
-        // try switching network first if needed or supported
-        const chainId = await payingWalletSigner.getChainId();
-        if (chainId !== data.chainId) {
-          handlePayWithCryptoError(
-            {
-              isErrorObject: true,
-              title: PayWithCryptoErrorCode.WrongChain,
-              description: `Please change to ${data.chainName} to proceed.`,
-            },
-            onError,
-            (errorObject) => {
-              postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
-                error: errorObject,
-                suppressErrorToast,
-              });
-            }
-          );
-          return;
-        }
-
-        // send the transaction
-        try {
-          console.log("sending funds");
-          const result = await payingWalletSigner.sendTransaction({
-            chainId: data.chainId,
-            data: data.blob,
-            to: data.paymentAddress,
-            value: data.value,
-          });
-          if (onSuccess && result) {
-            onSuccess({
-              transactionResponse: result,
-              transactionId: data.transactionId,
-            });
-          }
-          if (result) {
-            postMessageToIframe(iframe, "paymentSuccess", {
-              suppressErrorToast,
-              transactionHash: result.hash,
-            });
-          }
-        } catch (error) {
-          console.log("error sending funds", error);
-          handlePayWithCryptoError(error as Error, onError, (errorObject) => {
-            postMessageToIframe(iframe, PAY_WITH_ETH_ERROR, {
-              error: errorObject,
-              suppressErrorToast,
-            });
-          });
-        }
+        await checkAndSendEth({
+          data,
+          iframe,
+          payingWalletSigner,
+          suppressErrorToast,
+          onError,
+          onSuccess,
+        });
         break;
       }
-      case "sizing": {
+      case "checkout-with-eth-sizing": {
         iframe.style.height = data.height + "px";
         iframe.style.maxHeight = data.height + "px";
         break;
@@ -193,14 +229,13 @@ export async function createCheckoutWithEthLink({
   checkoutWithEthLink.addShowConnectWalletOptions(showConnectWalletOptions);
   checkoutWithEthLink.addStylingOptions(options);
   checkoutWithEthLink.addLocale(locale);
-  checkoutWithEthLink.addDate();
 
   return checkoutWithEthLink.getLink();
 }
 
 export type CheckoutWithEthElementArgs = Omit<
-  CheckoutWithEthMessageHandlerArgs,
-  "iframe"
+  Omit<CheckoutWithEthMessageHandlerArgs, "iframe">,
+  "setUpUserPayingWalletSigner"
 > &
   CheckoutWithEthLinkArgs &
   PaperPaymentElementConstructorArgs;
@@ -211,7 +246,6 @@ export async function createCheckoutWithEthElement({
   suppressErrorToast,
   onError,
   onLoad,
-  setUpUserPayingWalletSigner,
   payingWalletSigner,
   receivingWalletType,
   appName,
@@ -224,7 +258,6 @@ export async function createCheckoutWithEthElement({
   const checkoutWithEthMessageHandler = (iframe: HTMLIFrameElement) =>
     createCheckoutWithEthMessageHandler({
       iframe,
-      setUpUserPayingWalletSigner,
       payingWalletSigner,
       onSuccess,
       onError,
