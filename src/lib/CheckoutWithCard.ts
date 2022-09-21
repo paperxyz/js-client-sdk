@@ -78,7 +78,7 @@ export function createCheckoutWithCardMessageHandler({
 	const paperDomain = useAltDomain ? PAPER_APP_URL_ALT : PAPER_APP_URL;
 
 	return (event: MessageEvent) => {
-		if (paperDomain) {
+		if (!event.origin.startsWith(paperDomain)) {
 			return;
 		}
 		const { data } = event;
