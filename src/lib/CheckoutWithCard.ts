@@ -1,164 +1,178 @@
 import {
-  CHECKOUT_WITH_CARD_IFRAME_URL,
-  DEFAULT_BRAND_OPTIONS,
-  PAPER_APP_URL_ALT,
+	CHECKOUT_WITH_CARD_IFRAME_URL,
+	DEFAULT_BRAND_OPTIONS,
+	PAPER_APP_URL,
+	PAPER_APP_URL_ALT,
 } from "../constants/settings";
 import { KycModal, ReviewResult } from "../interfaces/CheckoutWithCard";
 import {
-  ICustomizationOptions,
-  Locale,
+	ICustomizationOptions,
+	Locale,
 } from "../interfaces/CommonCheckoutElementTypes";
 import { PaperSDKError, PaperSDKErrorCode } from "../interfaces/PaperSDKError";
 import { LinksManager } from "../utils/LinksManager";
 import { postMessageToIframe } from "../utils/postMessageToIframe";
 import {
-  PaperPaymentElement,
-  PaperPaymentElementConstructorArgs,
+	PaperPaymentElement,
+	PaperPaymentElementConstructorArgs,
 } from "./CreatePaymentElement";
 
-const paperDomain = PAPER_APP_URL_ALT;
-
 export interface CheckoutWithCardLinkArgs {
-  sdkClientSecret: string;
-  appName?: string;
-  options?: ICustomizationOptions;
-  locale?: Locale;
+	sdkClientSecret: string;
+	appName?: string;
+	options?: ICustomizationOptions;
+	locale?: Locale;
+
+	/**
+	 * If true, loads the SDK domain 'papercheckout.com', else loads 'paper.xyz'.
+	 * The alt domain is useful because some restricted networks blanket block all *.xyz requests.
+	 * Certain features (e.g. Apple Pay) may only work if the domain matches the parent window.
+	 *
+	 * Defaults to true.
+	 */
+	useAltDomain?: boolean;
 }
 
 export function createCheckoutWithCardLink({
-  sdkClientSecret,
-  appName,
-  locale,
-  options = { ...DEFAULT_BRAND_OPTIONS },
+	sdkClientSecret,
+	appName,
+	options = { ...DEFAULT_BRAND_OPTIONS },
+	locale,
+	useAltDomain = true,
 }: CheckoutWithCardLinkArgs) {
-  const CheckoutWithCardUrlBase = new URL(
-    CHECKOUT_WITH_CARD_IFRAME_URL,
-    paperDomain
-  );
+	const paperDomain = useAltDomain ? PAPER_APP_URL_ALT : PAPER_APP_URL;
 
-  const checkoutWithCardLink = new LinksManager(CheckoutWithCardUrlBase);
-  checkoutWithCardLink.addClientSecret(sdkClientSecret);
-  checkoutWithCardLink.addStylingOptions(options);
-  checkoutWithCardLink.addLocale(locale);
-  checkoutWithCardLink.addAppName(appName);
+	const CheckoutWithCardUrlBase = new URL(
+		CHECKOUT_WITH_CARD_IFRAME_URL,
+		paperDomain
+	);
 
-  return checkoutWithCardLink.getLink();
+	const checkoutWithCardLink = new LinksManager(CheckoutWithCardUrlBase);
+	checkoutWithCardLink.addClientSecret(sdkClientSecret);
+	checkoutWithCardLink.addStylingOptions(options);
+	checkoutWithCardLink.addLocale(locale);
+	checkoutWithCardLink.addAppName(appName);
+
+	return checkoutWithCardLink.getLink();
 }
 
 export interface CheckoutWithCardMessageHandlerArgs {
-  iframe: HTMLIFrameElement;
-  onPaymentSuccess?: ({ id }: { id: string }) => void;
-  onReview?: (result: ReviewResult) => void;
-  onError?: (error: PaperSDKError) => void;
-  onOpenKycModal: (props: KycModal) => void;
-  onCloseKycModal: () => void;
+	iframe: HTMLIFrameElement;
+	onPaymentSuccess?: ({ id }: { id: string }) => void;
+	onReview?: (result: ReviewResult) => void;
+	onError?: (error: PaperSDKError) => void;
+	onOpenKycModal: (props: KycModal) => void;
+	onCloseKycModal: () => void;
 }
 
 export function createCheckoutWithCardMessageHandler({
-  iframe,
-  onError,
-  onOpenKycModal,
-  onCloseKycModal,
-  onReview,
-  onPaymentSuccess,
+	iframe,
+	onError,
+	onOpenKycModal,
+	onCloseKycModal,
+	onReview,
+	onPaymentSuccess,
 }: CheckoutWithCardMessageHandlerArgs) {
-  return (event: MessageEvent) => {
-    if (!event.origin.startsWith(paperDomain)) {
-      return;
-    }
-    const { data } = event;
-    switch (data.eventType) {
-      case "checkoutWithCardError":
-        if (onError) {
-          onError({
-            code: data.code as PaperSDKErrorCode,
-            error: data.error,
-          });
-        }
-        break;
+	return (event: MessageEvent) => {
+		if (
+			!event.origin.startsWith(PAPER_APP_URL) ||
+			!event.origin.startsWith(PAPER_APP_URL_ALT)
+		) {
+			return;
+		}
+		const { data } = event;
+		switch (data.eventType) {
+			case "checkoutWithCardError":
+				if (onError) {
+					onError({
+						code: data.code as PaperSDKErrorCode,
+						error: data.error,
+					});
+				}
+				break;
 
-      case "paymentSuccess":
-        if (onPaymentSuccess) {
-          onPaymentSuccess({ id: data.id });
-        }
-        break;
+			case "paymentSuccess":
+				if (onPaymentSuccess) {
+					onPaymentSuccess({ id: data.id });
+				}
+				break;
 
-      case "reviewComplete":
-        if (onReview) {
-          onReview({
-            id: data.id,
-            cardholderName: data.cardholderName,
-          });
-        }
-        break;
+			case "reviewComplete":
+				if (onReview) {
+					onReview({
+						id: data.id,
+						cardholderName: data.cardholderName,
+					});
+				}
+				break;
 
-      case "openModalWithUrl":
-        onOpenKycModal({ iframeLink: data.url });
-        break;
+			case "openModalWithUrl":
+				onOpenKycModal({ iframeLink: data.url });
+				break;
 
-      case "completedSDKModal":
-        onCloseKycModal();
+			case "completedSDKModal":
+				onCloseKycModal();
 
-        if (data.postToIframe) {
-          postMessageToIframe(iframe, data.eventType, data);
-        }
-        break;
-      case "sizing": {
-        iframe.style.height = data.height + "px";
-        iframe.style.maxHeight = data.height + "px";
-        break;
-      }
-      default:
-      // Ignore unrecognized event
-    }
-  };
+				if (data.postToIframe) {
+					postMessageToIframe(iframe, data.eventType, data);
+				}
+				break;
+			case "sizing": {
+				iframe.style.height = data.height + "px";
+				iframe.style.maxHeight = data.height + "px";
+				break;
+			}
+			default:
+			// Ignore unrecognized event
+		}
+	};
 }
 
 export type CheckoutWithCardElementArgs = Omit<
-  CheckoutWithCardMessageHandlerArgs,
-  "iframe"
+	CheckoutWithCardMessageHandlerArgs,
+	"iframe"
 > &
-  CheckoutWithCardLinkArgs &
-  PaperPaymentElementConstructorArgs;
+	CheckoutWithCardLinkArgs &
+	PaperPaymentElementConstructorArgs;
 
 export function createCheckoutWithCardElement({
-  onCloseKycModal,
-  onOpenKycModal,
-  sdkClientSecret,
-  appName,
-  elementOrId,
-  onLoad,
-  onError,
-  locale,
-  options,
-  onPaymentSuccess,
-  onReview,
+	onCloseKycModal,
+	onOpenKycModal,
+	sdkClientSecret,
+	appName,
+	elementOrId,
+	onLoad,
+	onError,
+	locale,
+	options,
+	onPaymentSuccess,
+	onReview,
 }: CheckoutWithCardElementArgs) {
-  const checkoutWithCardId = "checkout-with-card-iframe";
-  const checkoutWithCardMessageHandler = (iframe: HTMLIFrameElement) =>
-    createCheckoutWithCardMessageHandler({
-      iframe,
-      onCloseKycModal,
-      onOpenKycModal,
-      onError,
-      onPaymentSuccess,
-      onReview,
-    });
+	const checkoutWithCardId = "checkout-with-card-iframe";
+	const checkoutWithCardMessageHandler = (iframe: HTMLIFrameElement) =>
+		createCheckoutWithCardMessageHandler({
+			iframe,
+			onCloseKycModal,
+			onOpenKycModal,
+			onError,
+			onPaymentSuccess,
+			onReview,
+		});
 
-  const checkoutWithCardUrl = createCheckoutWithCardLink({
-    sdkClientSecret,
-    appName,
-    locale,
-    options,
-  });
+	const checkoutWithCardUrl = createCheckoutWithCardLink({
+		sdkClientSecret,
+		appName,
+		locale,
+		options,
+	});
 
-  const paymentElement = new PaperPaymentElement({
-    onLoad,
-    elementOrId,
-  });
-  return paymentElement.createPaymentElement({
-    handler: checkoutWithCardMessageHandler,
-    iframeId: checkoutWithCardId,
-    link: checkoutWithCardUrl,
-  });
+	const paymentElement = new PaperPaymentElement({
+		onLoad,
+		elementOrId,
+	});
+	return paymentElement.createPaymentElement({
+		handler: checkoutWithCardMessageHandler,
+		iframeId: checkoutWithCardId,
+		link: checkoutWithCardUrl,
+	});
 }
