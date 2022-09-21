@@ -147,6 +147,7 @@ export function createCheckoutWithCardElement({
 	options,
 	onPaymentSuccess,
 	onReview,
+	useAltDomain,
 }: CheckoutWithCardElementArgs) {
 	const checkoutWithCardId = "checkout-with-card-iframe";
 	const checkoutWithCardMessageHandler = (iframe: HTMLIFrameElement) =>
@@ -164,6 +165,7 @@ export function createCheckoutWithCardElement({
 		appName,
 		locale,
 		options,
+		useAltDomain,
 	});
 
 	const paymentElement = new PaperPaymentElement({
