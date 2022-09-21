@@ -66,7 +66,7 @@ export function createCheckoutWithCardMessageHandler({
     if (!event.origin.startsWith(paperDomain)) {
       return;
     }
-    const data = event.data;
+    const { data } = event;
     switch (data.eventType) {
       case "checkoutWithCardError":
         if (onError) {
@@ -104,10 +104,8 @@ export function createCheckoutWithCardMessageHandler({
         }
         break;
       case "sizing": {
-        if (iframe) {
-          iframe.style.height = data.height + "px";
-          iframe.style.maxHeight = data.height + "px";
-        }
+        iframe.style.height = data.height + "px";
+        iframe.style.maxHeight = data.height + "px";
         break;
       }
       default:
