@@ -30,7 +30,7 @@ export interface CheckoutWithCardLinkArgs {
 	 *
 	 * Defaults to true.
 	 */
-	useAltDomain: boolean;
+	useAltDomain?: boolean;
 }
 
 export function createCheckoutWithCardLink({
@@ -40,7 +40,7 @@ export function createCheckoutWithCardLink({
 	locale,
 	useAltDomain,
 }: CheckoutWithCardLinkArgs) {
-	const paperDomain = useAltDomain ? PAPER_APP_URL_ALT : PAPER_APP_URL;
+	const paperDomain = !useAltDomain ? PAPER_APP_URL : PAPER_APP_URL_ALT;
 
 	const CheckoutWithCardUrlBase = new URL(
 		CHECKOUT_WITH_CARD_IFRAME_URL,
@@ -63,7 +63,7 @@ export interface CheckoutWithCardMessageHandlerArgs {
 	onError?: (error: PaperSDKError) => void;
 	onOpenKycModal: (props: KycModal) => void;
 	onCloseKycModal: () => void;
-	useAltDomain: boolean;
+	useAltDomain?: boolean;
 }
 
 export function createCheckoutWithCardMessageHandler({
@@ -75,7 +75,7 @@ export function createCheckoutWithCardMessageHandler({
 	onPaymentSuccess,
 	useAltDomain,
 }: CheckoutWithCardMessageHandlerArgs) {
-	const paperDomain = useAltDomain ? PAPER_APP_URL_ALT : PAPER_APP_URL;
+	const paperDomain = !useAltDomain ? PAPER_APP_URL : PAPER_APP_URL_ALT;
 
 	return (event: MessageEvent) => {
 		if (!event.origin.startsWith(paperDomain)) {
