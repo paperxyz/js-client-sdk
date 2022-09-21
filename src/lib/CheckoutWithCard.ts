@@ -30,7 +30,7 @@ export interface CheckoutWithCardLinkArgs {
 	 *
 	 * Defaults to true.
 	 */
-	useAltDomain?: boolean;
+	useAltDomain: boolean;
 }
 
 export function createCheckoutWithCardLink({
@@ -38,7 +38,7 @@ export function createCheckoutWithCardLink({
 	appName,
 	options = { ...DEFAULT_BRAND_OPTIONS },
 	locale,
-	useAltDomain = true,
+	useAltDomain,
 }: CheckoutWithCardLinkArgs) {
 	const paperDomain = useAltDomain ? PAPER_APP_URL_ALT : PAPER_APP_URL;
 
@@ -63,6 +63,7 @@ export interface CheckoutWithCardMessageHandlerArgs {
 	onError?: (error: PaperSDKError) => void;
 	onOpenKycModal: (props: KycModal) => void;
 	onCloseKycModal: () => void;
+	useAltDomain: boolean;
 }
 
 export function createCheckoutWithCardMessageHandler({
@@ -72,12 +73,12 @@ export function createCheckoutWithCardMessageHandler({
 	onCloseKycModal,
 	onReview,
 	onPaymentSuccess,
+	useAltDomain,
 }: CheckoutWithCardMessageHandlerArgs) {
+	const paperDomain = useAltDomain ? PAPER_APP_URL_ALT : PAPER_APP_URL;
+
 	return (event: MessageEvent) => {
-		if (
-			!event.origin.startsWith(PAPER_APP_URL) ||
-			!event.origin.startsWith(PAPER_APP_URL_ALT)
-		) {
+		if (paperDomain) {
 			return;
 		}
 		const { data } = event;
@@ -147,7 +148,7 @@ export function createCheckoutWithCardElement({
 	options,
 	onPaymentSuccess,
 	onReview,
-	useAltDomain,
+	useAltDomain = true,
 }: CheckoutWithCardElementArgs) {
 	const checkoutWithCardId = "checkout-with-card-iframe";
 	const checkoutWithCardMessageHandler = (iframe: HTMLIFrameElement) =>
@@ -158,6 +159,7 @@ export function createCheckoutWithCardElement({
 			onError,
 			onPaymentSuccess,
 			onReview,
+			useAltDomain,
 		});
 
 	const checkoutWithCardUrl = createCheckoutWithCardLink({
