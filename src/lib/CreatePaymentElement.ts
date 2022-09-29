@@ -25,7 +25,7 @@ export class PaperPaymentElement {
 		const iframe = document.createElement("iframe");
 		iframe.src = link.href;
 		iframe.id = iframeId;
-		iframe.allow = "payment;camera";
+		iframe.allow = "payment";
 		iframe.setAttribute(
 			"style",
 			"margin-left:auto; margin-right:auto; height:350px; width:100%; transition-property:all; transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1); transition-duration:150ms;"
