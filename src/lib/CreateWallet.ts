@@ -1,7 +1,4 @@
-import {
-  CREATE_WALLET_IFRAME_URL,
-  PAPER_APP_URL_ALT,
-} from "../constants/settings";
+import { CREATE_WALLET_IFRAME_URL, PAPER_APP_URL } from "../constants/settings";
 import { Locale } from "../interfaces/CommonCheckoutElementTypes";
 import { PaperSDKError, PaperSDKErrorCode } from "../interfaces/PaperSDKError";
 import { PaperUser } from "../interfaces/PaperUser";
@@ -10,7 +7,7 @@ import { LinksManager } from "../utils/LinksManager";
 import { postMessageToIframe } from "../utils/postMessageToIframe";
 
 export function createWalletLink({ locale }: { locale?: Locale }) {
-  const iframeUrlBase = new URL(CREATE_WALLET_IFRAME_URL, PAPER_APP_URL_ALT);
+  const iframeUrlBase = new URL(CREATE_WALLET_IFRAME_URL, PAPER_APP_URL);
   const iframeUrl = new LinksManager(iframeUrlBase);
   iframeUrl.addLocale(locale);
 
@@ -27,7 +24,7 @@ function createWalletMessageHandler({
   onError?: (error: PaperSDKError) => void;
 }) {
   return (event: MessageEvent) => {
-    if (event.origin !== PAPER_APP_URL_ALT) return;
+    if (event.origin !== PAPER_APP_URL) return;
 
     const data = event.data;
     switch (data.eventType) {
