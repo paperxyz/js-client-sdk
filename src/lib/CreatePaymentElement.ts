@@ -53,7 +53,7 @@ export class PaperPaymentElement {
 		const existing: HTMLIFrameElement | null = container.querySelector(
 			"#" + iframeId
 		);
-		// if we already created am iframe, consider updating the iframe link if it's new
+		// if we already created an iframe, consider updating the iframe link if it's new
 		if (existing) {
 			if (existing.src === link.href) {
 				return existing;
