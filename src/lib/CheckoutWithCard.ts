@@ -10,6 +10,7 @@ import {
 	Locale,
 } from "../interfaces/CommonCheckoutElementTypes";
 import { PaperSDKError, PaperSDKErrorCode } from "../interfaces/PaperSDKError";
+import { openCenteredPopup } from "../utils/device";
 import { LinksManager } from "../utils/LinksManager";
 import { postMessageToIframe } from "../utils/postMessageToIframe";
 import {
@@ -81,6 +82,7 @@ export function createCheckoutWithCardMessageHandler({
 		if (!event.origin.startsWith(paperDomain)) {
 			return;
 		}
+
 		const { data } = event;
 		switch (data.eventType) {
 			case "checkoutWithCardError":
@@ -95,6 +97,10 @@ export function createCheckoutWithCardMessageHandler({
 			case "paymentSuccess":
 				if (onPaymentSuccess) {
 					onPaymentSuccess({ id: data.id });
+				}
+
+				if (data.postToIframe) {
+					postMessageToIframe(iframe, data.eventType, data);
 				}
 				break;
 
@@ -118,11 +124,26 @@ export function createCheckoutWithCardMessageHandler({
 					postMessageToIframe(iframe, data.eventType, data);
 				}
 				break;
-			case "sizing": {
+
+			case "requestedPopup":
+				// The iframe requested a popup.
+				// The reference to this window is not stored so the popup cannot
+				// be programmatically closed.
+				const popupRef = openCenteredPopup({
+					url: data.url,
+					width: data.width,
+					height: data.height,
+				});
+				if (!popupRef) {
+					console.error("CheckoutWithCard: Unable to open popup.");
+				}
+				break;
+
+			case "sizing":
 				iframe.style.height = data.height + "px";
 				iframe.style.maxHeight = data.height + "px";
 				break;
-			}
+
 			default:
 			// Ignore unrecognized event
 		}
