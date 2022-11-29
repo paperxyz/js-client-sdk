@@ -35,7 +35,7 @@ const hideMagicIframe = () => {
   const iframe = document.getElementById(CREATE_WALLET_IFRAME_ID);
 
   if (iframe) {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = "visible";
     iframe.setAttribute("style", idleIframeStyle);
   }
 };
