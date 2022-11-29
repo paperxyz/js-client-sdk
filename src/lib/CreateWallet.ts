@@ -18,7 +18,7 @@ const showMagicIframe = () => {
     top: calc(50% - 215px);
     width: 430px;
     height: 430px;
-    z-index: 4;
+    z-index: 99999;
     border-radius: 12px;
     box-shadow: 0 0 40px rgb(0 0 0 / 20%);
   `
