@@ -42,6 +42,10 @@ export class LinksManager {
     );
   }
 
+  addOTP() {
+    this.link.searchParams.set("withOTP", "true");
+  }
+
   addAppName(appName?: string) {
     if (appName) {
       this.link.searchParams.set("appName", appName);
