@@ -25,7 +25,7 @@ export interface CheckoutWithCardLinkArgs {
 	locale?: Locale;
 
 	/**
-	 * If true, loads the SDK domain 'papercheckout.com', else loads 'paper.xyz'.
+	 * If true, loads the SDK domain 'withpaper.com', else loads 'paper.xyz'.
 	 * The alt domain is useful because some restricted networks blanket block all *.xyz requests.
 	 * Certain features (e.g. Apple Pay) may only work if the domain matches the parent window.
 	 *

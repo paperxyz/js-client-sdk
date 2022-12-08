@@ -1,3 +1,5 @@
+var packageJson = require("./package.json");
+
 export interface PaperPaymentElementConstructorArgs {
 	onLoad?: (event?: Event) => void;
 	elementOrId?: string | HTMLElement;
@@ -35,6 +37,10 @@ export class PaperPaymentElement {
 				this.onLoad(event);
 			}
 		};
+		iframe.setAttribute(
+			"data-paper-sdk-version",
+			`@paperxyz/js-client-sdk@${packageJson.version}`
+		);
 
 		if (!this.elementOrId) {
 			window.addEventListener("message", handler(iframe));
