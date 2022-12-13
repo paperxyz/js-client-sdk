@@ -7,10 +7,6 @@ export const PAPER_APP_URL =
 		process?.env?.NEXT_PUBLIC_NODE_ENV === "staging" &&
 		  typeof window !== "undefined"
 		? window.location.origin
-		: // Use "paper.xyz" if currently on that domain (deprecated).
-		typeof window !== "undefined" &&
-		  window.location.origin === "https://paper.xyz"
-		? "https://paper.xyz"
 		: // Fall back to the canonical hostname "withpaper.com".
 		  "https://withpaper.com";
 
