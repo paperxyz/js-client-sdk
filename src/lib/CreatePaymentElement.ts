@@ -1,4 +1,4 @@
-var packageJson = require("./package.json");
+const packageJson = require("../../package.json");
 
 export interface PaperPaymentElementConstructorArgs {
 	onLoad?: (event?: Event) => void;

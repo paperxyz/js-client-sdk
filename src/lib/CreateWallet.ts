@@ -5,7 +5,8 @@ import { PaperUser } from "../interfaces/PaperUser";
 import { SupportedChainName } from "../interfaces/SupportedChainName";
 import { LinksManager } from "../utils/LinksManager";
 import { postMessageToIframe } from "../utils/postMessageToIframe";
-var packageJson = require("./package.json");
+
+const packageJson = require("../../package.json");
 
 const showMagicIframe = () => {
 	const iframe = document.getElementById(CREATE_WALLET_IFRAME_ID);
@@ -107,6 +108,7 @@ export async function initialiseCreateWallet({
 	onError?: (error: PaperSDKError) => void;
 	locale?: Locale;
 }) {
+	console.log(packageJson);
 	let iframe = document.getElementById(
 		CREATE_WALLET_IFRAME_ID
 	) as HTMLIFrameElement | null;

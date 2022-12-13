@@ -1,11 +1,18 @@
 export const PAPER_APP_URL =
+	// Use `localhost:3000` on dev.
 	process?.env?.NEXT_PUBLIC_NODE_ENV === "development" ||
 	process?.env?.NODE_ENV === "development"
 		? "http://localhost:3000"
-		: process?.env?.NEXT_PUBLIC_NODE_ENV === "staging" &&
+		: // Use current window host on staging.
+		process?.env?.NEXT_PUBLIC_NODE_ENV === "staging" &&
 		  typeof window !== "undefined"
 		? window.location.origin
-		: "https://withpaper.com";
+		: // Use "paper.xyz" if currently on that domain (deprecated).
+		typeof window !== "undefined" &&
+		  window.location.origin === "https://paper.xyz"
+		? "https://paper.xyz"
+		: // Fall back to the canonical hostname "withpaper.com".
+		  "https://withpaper.com";
 
 export const CHECKOUT_WITH_ETH_IFRAME_URL = "/sdk/2022-08-12/checkout-with-eth";
 export const CHECKOUT_WITH_CARD_IFRAME_URL =
