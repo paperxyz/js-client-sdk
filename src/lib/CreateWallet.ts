@@ -7,10 +7,45 @@ import { LinksManager } from "../utils/LinksManager";
 import { postMessageToIframe } from "../utils/postMessageToIframe";
 var packageJson = require("./package.json");
 
+const showMagicIframe = () => {
+	const iframe = document.getElementById(CREATE_WALLET_IFRAME_ID);
+
+	if (iframe) {
+		document.body.style.overflow = "hidden";
+		iframe.setAttribute(
+			"style",
+			`
+    position: fixed; left: calc(50% - 215px); 
+    top: calc(50% - 215px);
+    width: 430px;
+    height: 430px;
+    z-index: 99999;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgb(0 0 0 / 20%);
+  `
+		);
+	}
+};
+
+const idleIframeStyle = `
+  width: 0;
+  height: 0;
+  visibility: hidden;
+`;
+const hideMagicIframe = () => {
+	const iframe = document.getElementById(CREATE_WALLET_IFRAME_ID);
+
+	if (iframe) {
+		document.body.style.overflow = "visible";
+		iframe.setAttribute("style", idleIframeStyle);
+	}
+};
+
 export function createWalletLink({ locale }: { locale?: Locale }) {
 	const iframeUrlBase = new URL(CREATE_WALLET_IFRAME_URL, PAPER_APP_URL);
 	const iframeUrl = new LinksManager(iframeUrlBase);
 	iframeUrl.addLocale(locale);
+	iframeUrl.addOTP();
 
 	return iframeUrl.getLink();
 }
@@ -32,6 +67,8 @@ function createWalletMessageHandler({
 			case "verifyEmailEmailVerificationInitiated": {
 				if (onEmailVerificationInitiated) {
 					onEmailVerificationInitiated();
+
+					showMagicIframe();
 				}
 				break;
 			}
@@ -43,6 +80,7 @@ function createWalletMessageHandler({
 						error: data.error,
 					});
 				}
+				hideMagicIframe();
 				break;
 			}
 			case "verifyEmailSuccess": {
@@ -51,7 +89,7 @@ function createWalletMessageHandler({
 					walletAddress: data.walletAddress,
 					accessCode: data.accessCode,
 				});
-				break;
+				hideMagicIframe();
 			}
 		}
 	};
@@ -76,10 +114,7 @@ export async function initialiseCreateWallet({
 	if (!iframe) {
 		iframe = document.createElement("iframe");
 		iframe.src = createWalletLink({ locale }).href;
-		iframe.setAttribute(
-			"style",
-			"width: 0px; height: 0px; visibility: hidden;"
-		);
+		iframe.setAttribute("style", idleIframeStyle);
 		iframe.setAttribute("id", CREATE_WALLET_IFRAME_ID);
 		iframe.setAttribute(
 			"data-paper-sdk-version",
