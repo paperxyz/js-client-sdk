@@ -2,7 +2,6 @@ import {
 	CHECKOUT_WITH_CARD_IFRAME_URL,
 	DEFAULT_BRAND_OPTIONS,
 	PAPER_APP_URL,
-	PAPER_APP_URL_ALT,
 } from "../constants/settings";
 import { KycModal, ReviewResult } from "../interfaces/CheckoutWithCard";
 import {
@@ -25,11 +24,7 @@ export interface CheckoutWithCardLinkArgs {
 	locale?: Locale;
 
 	/**
-	 * If true, loads the SDK domain 'papercheckout.com', else loads 'paper.xyz'.
-	 * The alt domain is useful because some restricted networks blanket block all *.xyz requests.
-	 * Certain features (e.g. Apple Pay) may only work if the domain matches the parent window.
-	 *
-	 * Defaults to true.
+	 * @deprecated: No longer used. Domain is set to "withpaper.com".
 	 */
 	useAltDomain?: boolean;
 }
@@ -39,13 +34,10 @@ export function createCheckoutWithCardLink({
 	appName,
 	options = { ...DEFAULT_BRAND_OPTIONS },
 	locale,
-	useAltDomain,
 }: CheckoutWithCardLinkArgs) {
-	const paperDomain = !useAltDomain ? PAPER_APP_URL : PAPER_APP_URL_ALT;
-
 	const CheckoutWithCardUrlBase = new URL(
 		CHECKOUT_WITH_CARD_IFRAME_URL,
-		paperDomain
+		PAPER_APP_URL
 	);
 
 	const checkoutWithCardLink = new LinksManager(CheckoutWithCardUrlBase);
@@ -74,12 +66,9 @@ export function createCheckoutWithCardMessageHandler({
 	onCloseKycModal,
 	onReview,
 	onPaymentSuccess,
-	useAltDomain,
 }: CheckoutWithCardMessageHandlerArgs) {
-	const paperDomain = !useAltDomain ? PAPER_APP_URL : PAPER_APP_URL_ALT;
-
 	return (event: MessageEvent) => {
-		if (!event.origin.startsWith(paperDomain)) {
+		if (!event.origin.startsWith(PAPER_APP_URL)) {
 			return;
 		}
 
