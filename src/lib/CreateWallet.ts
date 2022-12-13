@@ -108,7 +108,6 @@ export async function initialiseCreateWallet({
 	onError?: (error: PaperSDKError) => void;
 	locale?: Locale;
 }) {
-	console.log(packageJson);
 	let iframe = document.getElementById(
 		CREATE_WALLET_IFRAME_ID
 	) as HTMLIFrameElement | null;
