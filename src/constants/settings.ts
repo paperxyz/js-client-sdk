@@ -1,25 +1,18 @@
 const isDev = (): boolean => {
-  if (
+  return !!(
     process?.env?.NEXT_PUBLIC_NODE_ENV === "development" ||
     process?.env?.NODE_ENV === "development" ||
     (typeof window !== "undefined" &&
       window.location.origin.includes("localhost"))
-  )
-    return true;
-
-  return false;
+  );
 };
 
 const isStaging = (): boolean => {
-  if (
+  return !!(
     process?.env?.NEXT_PUBLIC_NODE_ENV === "staging" ||
     (typeof window !== "undefined" &&
       window.location.origin.includes("zeet.app"))
-  ) {
-    return true;
-  }
-
-  return false;
+  );
 };
 
 const isOldPaperDomain = (): boolean =>
@@ -27,7 +20,17 @@ const isOldPaperDomain = (): boolean =>
 
 export const getPaperOriginUrl = (): string => {
   if (isDev()) return "http://localhost:3000";
-  if (isStaging() || isOldPaperDomain()) return window.location.origin;
+  if (isStaging()) {
+    if (process?.env?.ZEET_DEPLOYMENT_URL) {
+      return `https://${process.env.ZEET_DEPLOYMENT_URL}`;
+    }
+
+    if (typeof window !== "undefined") return window.location.origin;
+
+    return "https://withpaper.com";
+  }
+
+  if (isOldPaperDomain()) return window.location.origin;
 
   return "https://withpaper.com";
 };
