@@ -1,9 +1,13 @@
+interface PaperWindow extends Window {
+  isPaperDev: boolean;
+}
+
 const isDev = (): boolean => {
   return !!(
     process?.env?.NEXT_PUBLIC_NODE_ENV === "development" ||
     process?.env?.NODE_ENV === "development" ||
     (typeof window !== "undefined" &&
-      window.location.origin.includes("localhost"))
+      (window as unknown as PaperWindow).isPaperDev)
   );
 };
 
