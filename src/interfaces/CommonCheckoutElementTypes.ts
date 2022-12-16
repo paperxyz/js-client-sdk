@@ -7,6 +7,6 @@ export interface ICustomizationOptions {
 }
 
 export enum Locale {
-  EN = "en",
-  FR = "fr",
+  EN = 'en',
+  FR = 'fr',
 }

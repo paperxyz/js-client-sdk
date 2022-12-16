@@ -1,7 +1,7 @@
 export function postMessageToIframe(
   frame: HTMLIFrameElement,
   eventType: string,
-  data: any
+  data: any,
 ) {
-  frame.contentWindow?.postMessage({ eventType, ...data }, "*");
+  frame.contentWindow?.postMessage({ eventType, ...data }, '*');
 }
