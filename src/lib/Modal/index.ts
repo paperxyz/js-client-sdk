@@ -59,8 +59,6 @@ export class Modal {
       document.body.style.overflow = 'visible';
       this.main.remove();
     });
-
-    // window.removeEventListener("keydown", this.onKeyDown);
   }
 
   protected addListeners() {
@@ -71,17 +69,7 @@ export class Modal {
      * What happens to the dev flow now? Do we provide a callback + options to not allow clicking out?
      * If so, how should we pass around the callback? Seems excessive for not a lot of impact.
      */
-    // this.overlay.addEventListener("click", () => {
-    //   this.close();
-    // });
-    // window.addEventListener("keydown", this.onKeyDown);
   }
-
-  // protected onKeyDown = (e: KeyboardEvent) => {
-  //   if (e.key === "Escape") {
-  //     this.close();
-  //   }
-  // };
 
   protected mergeStyles(styles: Partial<ModalStyles>) {
     this.styles.body = {
