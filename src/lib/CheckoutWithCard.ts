@@ -55,8 +55,8 @@ export interface CheckoutWithCardMessageHandlerArgs {
   onPaymentSuccess?: ({ id }: { id: string }) => void;
   onReview?: (result: ReviewResult) => void;
   onError?: (error: PaperSDKError) => void;
-  onOpenKycModal: (props: KycModal) => void;
-  onCloseKycModal: () => void;
+  onOpenKycModal?: (props: KycModal) => void;
+  onCloseKycModal?: () => void;
   useAltDomain?: boolean;
 }
 
@@ -115,12 +115,18 @@ export function createCheckoutWithCardMessageHandler({
 
       case 'openModalWithUrl':
         modal.open({ iframeUrl: data.url });
-        onOpenKycModal({ iframeLink: data.url });
+
+        if (onOpenKycModal) {
+          onOpenKycModal({ iframeLink: data.url });
+        }
         break;
 
       case 'completedSDKModal':
         modal.close();
-        onCloseKycModal();
+
+        if (onCloseKycModal) {
+          onCloseKycModal();
+        }
 
         if (data.postToIframe) {
           postMessageToIframe(iframe, data.eventType, data);
