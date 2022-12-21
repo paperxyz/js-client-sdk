@@ -11,7 +11,7 @@ export const getDefaultModalStyles = (): ModalStyles => ({
   main: {
     ...fullScreen,
     position: 'fixed',
-    zIndex: '1000',
+    zIndex: '10000',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

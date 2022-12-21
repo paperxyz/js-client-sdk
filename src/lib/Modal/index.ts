@@ -25,6 +25,7 @@ export class Modal {
     this.overlay = document.createElement('div');
     this.body = document.createElement('div');
     this.iframe = document.createElement('iframe');
+    this.iframe.allow = 'camera;microphone';
 
     this.style = document.createElement('style');
     this.style.innerHTML = modalKeyframeAnimations;
