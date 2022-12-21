@@ -42,7 +42,6 @@ export class Modal {
     }
 
     this.addAccessibility();
-    this.addListeners();
 
     this.main.appendChild(this.overlay);
     this.main.appendChild(this.style);
@@ -59,16 +58,6 @@ export class Modal {
       document.body.style.overflow = 'visible';
       this.main.remove();
     });
-  }
-
-  protected addListeners() {
-    /**
-     * TODO : Figure out a way to add handlers while not affecting code flow
-     * example: Dev call otpLogin which opens anm iframe asking for code.
-     * User clicks esc.
-     * What happens to the dev flow now? Do we provide a callback + options to not allow clicking out?
-     * If so, how should we pass around the callback? Seems excessive for not a lot of impact.
-     */
   }
 
   protected mergeStyles(styles: Partial<ModalStyles>) {
