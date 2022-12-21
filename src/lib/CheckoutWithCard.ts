@@ -16,6 +16,7 @@ import {
   PaperPaymentElement,
   PaperPaymentElementConstructorArgs,
 } from './CreatePaymentElement';
+import { Modal } from './Modal';
 
 export interface CheckoutWithCardLinkArgs {
   sdkClientSecret: string;
@@ -67,6 +68,16 @@ export function createCheckoutWithCardMessageHandler({
   onReview,
   onPaymentSuccess,
 }: CheckoutWithCardMessageHandlerArgs) {
+  const modal = new Modal(undefined, {
+    body: {
+      backgroundColor: 'transparent',
+      borderRadius: '0px',
+      maxWidth: 'none',
+      height: '100vh',
+      maxHeight: 'none',
+      padding: '0px',
+    },
+  });
   return (event: MessageEvent) => {
     if (!event.origin.startsWith(PAPER_APP_URL)) {
       return;
@@ -103,10 +114,12 @@ export function createCheckoutWithCardMessageHandler({
         break;
 
       case 'openModalWithUrl':
+        modal.open({ iframeUrl: data.url });
         onOpenKycModal({ iframeLink: data.url });
         break;
 
       case 'completedSDKModal':
+        modal.close();
         onCloseKycModal();
 
         if (data.postToIframe) {
