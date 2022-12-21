@@ -1,7 +1,8 @@
 const isDev = (): boolean => {
   return !!(
     process?.env?.NEXT_PUBLIC_NODE_ENV === 'development' ||
-    process?.env?.NODE_ENV === 'development'
+    process?.env?.NODE_ENV === 'development' ||
+    !!(window as any).IS_PAPER_DEV
   );
 };
 

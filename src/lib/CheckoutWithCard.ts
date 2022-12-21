@@ -75,6 +75,7 @@ export function createCheckoutWithCardMessageHandler({
       maxWidth: 'none',
       height: '100vh',
       maxHeight: 'none',
+      padding: '0px',
     },
   });
   return (event: MessageEvent) => {
