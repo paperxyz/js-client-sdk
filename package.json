@@ -1,7 +1,7 @@
 {
   "name": "@paperxyz/js-client-sdk",
   "description": "Paper.xyz js sdk for Checkout Elements",
-  "version": "0.0.35-modal-2",
+  "version": "0.0.35-modal-3",
   "files": [
     "dist/**/*"
   ],
