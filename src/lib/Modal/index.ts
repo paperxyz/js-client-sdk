@@ -9,6 +9,7 @@ export class Modal {
   protected iframe: HTMLIFrameElement;
 
   protected style: HTMLStyleElement;
+  protected closeTimeout: number | undefined;
   styles = getDefaultModalStyles();
   body: HTMLDivElement;
 
@@ -55,10 +56,12 @@ export class Modal {
   close() {
     this.body.style.animation = 'pew-modal-slideOut 0.2s forwards';
 
-    this.body.addEventListener('animationend', () => {
+    this.closeTimeout = window.setTimeout(() => {
       document.body.style.overflow = 'visible';
       this.main.remove();
-    });
+
+      window.clearTimeout(this.closeTimeout);
+    }, 250);
   }
 
   protected mergeStyles(styles: Partial<ModalStyles>) {
