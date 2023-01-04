@@ -1,17 +1,13 @@
 const isDev = (): boolean => {
   return !!(
-    process?.env?.NEXT_PUBLIC_NODE_ENV === 'development' ||
-    process?.env?.NODE_ENV === 'development' ||
-    (typeof window !== 'undefined' &&
-      window.localStorage.getItem('IS_PAPER_DEV') === 'true')
+    typeof window !== 'undefined' &&
+    window.localStorage.getItem('IS_PAPER_DEV') === 'true'
   );
 };
 
 const isStaging = (): boolean => {
   return !!(
-    process?.env?.NEXT_PUBLIC_NODE_ENV === 'staging' ||
-    (typeof window !== 'undefined' &&
-      window.location.origin.includes('zeet.app'))
+    typeof window !== 'undefined' && window.location.origin.includes('zeet.app')
   );
 };
 
