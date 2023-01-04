@@ -1,14 +1,13 @@
 const isDev = (): boolean => {
   return !!(
-    (typeof window !== 'undefined' &&
-      window.localStorage.getItem('IS_PAPER_DEV') === 'true')
+    typeof window !== 'undefined' &&
+    window.localStorage.getItem('IS_PAPER_DEV') === 'true'
   );
 };
 
 const isStaging = (): boolean => {
   return !!(
-    (typeof window !== 'undefined' &&
-      window.location.origin.includes('zeet.app'))
+    typeof window !== 'undefined' && window.location.origin.includes('zeet.app')
   );
 };
 
