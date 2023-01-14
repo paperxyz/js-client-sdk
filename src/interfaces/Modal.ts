@@ -5,6 +5,7 @@ export interface ModalStyles {
   overlay: StyleObject;
   body: StyleObject;
   iframe: StyleObject;
+  closeButton?: StyleObject;
 }
 
 export interface ModalInterface {
