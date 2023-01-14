@@ -147,7 +147,6 @@ export function createCheckoutWithEthMessageHandler({
           );
           return;
         }
-
         // Allows Dev's to inject any chain switching for their custom signer here.
         if (setUpUserPayingWalletSigner) {
           try {

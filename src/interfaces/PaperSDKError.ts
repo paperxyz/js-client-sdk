@@ -8,6 +8,7 @@ export type PaperSDKError = {
 };
 
 export enum PaperSDKErrorCode {
+  UserCancelledOperation = 'User Cancelled Operation',
   UserLoginFailed = 'User login failed',
   InvalidProps = 'The props you passed in to this component are not valid.',
   InvalidCard = 'The card information is invalid. Please double check that the Card, CVC, and Zip code are all correct.',
