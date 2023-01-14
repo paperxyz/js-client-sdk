@@ -1,5 +1,6 @@
 import { PAPER_APP_URL } from '../constants/settings';
 import { CheckoutSuccessType } from '../interfaces/CheckoutSuccessType';
+import { PaperSDKError, PaperSDKErrorCode } from '../interfaces/PaperSDKError';
 import { Drawer } from './Drawer';
 
 async function sleepForSeconds(seconds: number) {
@@ -27,11 +28,13 @@ export async function renderPaperCheckoutLink({
 
       drawer.setOnCloseCallback(() => {
         const checkoutResult = getPaperCheckoutResult();
-        console.log('checkoutResult', checkoutResult);
         if (!!checkoutResult.transactionId) {
           resolve(checkoutResult);
         } else {
-          rej('User Cancel Operation');
+          rej({
+            code: PaperSDKErrorCode.UserCancelledOperation,
+            error: new Error(PaperSDKErrorCode.UserCancelledOperation),
+          } as PaperSDKError);
         }
       });
 
@@ -66,7 +69,10 @@ export async function renderPaperCheckoutLink({
             if (checkoutResult.transactionId) {
               resolve(checkoutResult);
             } else {
-              rej('User Cancel Operation');
+              rej({
+                code: PaperSDKErrorCode.UserCancelledOperation,
+                error: new Error(PaperSDKErrorCode.UserCancelledOperation),
+              } as PaperSDKError);
             }
             break;
           }
