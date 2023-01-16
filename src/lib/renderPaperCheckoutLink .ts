@@ -1,5 +1,5 @@
 import { PAPER_APP_URL } from '../constants/settings';
-import { CheckoutSuccessType } from '../interfaces/CheckoutSuccessType';
+import { CheckoutSuccessResult } from '../interfaces/CheckoutSuccessResult';
 import { PaperSDKError, PaperSDKErrorCode } from '../interfaces/PaperSDKError';
 import { Drawer } from './Drawer';
 
@@ -10,7 +10,7 @@ async function sleepForSeconds(seconds: number) {
     }, seconds * 1000);
   });
 }
-const PaperCheckoutResult: CheckoutSuccessType = { transactionId: '' };
+const PaperCheckoutResult: CheckoutSuccessResult = { transactionId: '' };
 function getPaperCheckoutResult() {
   return PaperCheckoutResult;
 }
@@ -21,8 +21,8 @@ export async function renderPaperCheckoutLink({
 {
   checkoutLinkUrl: string;
   // type: 'MODAL' | 'DRAWER';
-}): Promise<CheckoutSuccessType> {
-  const promiseToReturn = new Promise<CheckoutSuccessType>(
+}): Promise<CheckoutSuccessResult> {
+  const promiseToReturn = new Promise<CheckoutSuccessResult>(
     async (resolve, rej) => {
       const drawer = new Drawer();
 
@@ -32,14 +32,14 @@ export async function renderPaperCheckoutLink({
           resolve(checkoutResult);
         } else {
           rej({
-            code: PaperSDKErrorCode.UserCancelledOperation,
-            error: new Error(PaperSDKErrorCode.UserCancelledOperation),
+            code: PaperSDKErrorCode.UserAbandonedCheckout,
+            error: new Error(PaperSDKErrorCode.UserAbandonedCheckout),
           } as PaperSDKError);
         }
       });
 
       const formattedCheckoutLinkUrl = new URL(checkoutLinkUrl);
-      // formattedCheckoutLinkUrl.searchParams.set('display', type);
+      formattedCheckoutLinkUrl.searchParams.set('display', 'DRAWER');
       drawer.open({ iframeUrl: formattedCheckoutLinkUrl.href });
 
       const messageHandler = async (e: MessageEvent) => {
@@ -50,8 +50,8 @@ export async function renderPaperCheckoutLink({
         switch (result.eventType) {
           case 'paymentSuccess': {
             const transactionId = e.data.id;
-            result.transactionId = transactionId;
-            // TODO: Maybe we can resolve early is user's want
+            PaperCheckoutResult.transactionId = transactionId;
+            // TODO: Maybe we can resolve early if the user's want
             break;
           }
           case 'claimSuccessful': {
@@ -70,8 +70,8 @@ export async function renderPaperCheckoutLink({
               resolve(checkoutResult);
             } else {
               rej({
-                code: PaperSDKErrorCode.UserCancelledOperation,
-                error: new Error(PaperSDKErrorCode.UserCancelledOperation),
+                code: PaperSDKErrorCode.UserAbandonedCheckout,
+                error: new Error(PaperSDKErrorCode.UserAbandonedCheckout),
               } as PaperSDKError);
             }
             break;

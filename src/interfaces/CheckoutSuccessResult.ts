@@ -1,4 +1,4 @@
-export type CheckoutSuccessType = {
+export type CheckoutSuccessResult = {
   transactionId: string;
   claimedTokens?: {
     collectionAddress: string;

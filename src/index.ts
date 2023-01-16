@@ -7,7 +7,7 @@ export * from './interfaces/PaperSDKError';
 export * from './interfaces/PaperUser';
 export * from './interfaces/SupportedChainName';
 // Components
-export * from './lib/CheckoutComponent';
 export * from './lib/CheckoutWithCard';
 export * from './lib/CheckoutWithEth';
 export * from './lib/CreateWallet';
+export * from './lib/renderPaperCheckoutLink ';
