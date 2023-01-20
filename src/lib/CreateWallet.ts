@@ -12,17 +12,19 @@ const showMagicIframe = () => {
   const iframe = document.getElementById(CREATE_WALLET_IFRAME_ID);
 
   if (iframe) {
+    const size = 400;
     document.body.style.overflow = 'hidden';
     iframe.setAttribute(
       'style',
       `
-    position: fixed; left: calc(50% - 215px); 
-    top: calc(50% - 215px);
-    width: 430px;
-    height: 430px;
+    position: fixed; 
+    left: calc(50% - ${size / 2}px); 
+    top: calc(50% - ${size / 2}px);
+    width: ${size}px;
+    height: ${size}px;
     z-index: 99999;
-    border-radius: 12px;
-    box-shadow: 0 0 40px rgb(0 0 0 / 20%);
+    border-radius: 28px;
+    border: none;
   `,
     );
   }
@@ -33,6 +35,7 @@ const idleIframeStyle = `
   height: 0;
   visibility: hidden;
 `;
+
 const hideMagicIframe = () => {
   const iframe = document.getElementById(CREATE_WALLET_IFRAME_ID);
 
@@ -68,9 +71,8 @@ function createWalletMessageHandler({
       case 'verifyEmailEmailVerificationInitiated': {
         if (onEmailVerificationInitiated) {
           onEmailVerificationInitiated();
-
-          showMagicIframe();
         }
+        showMagicIframe();
         break;
       }
       case 'verifyEmailError': {
