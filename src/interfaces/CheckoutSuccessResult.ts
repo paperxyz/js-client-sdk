@@ -1,5 +1,8 @@
+import { TransactionStatus } from './TransactionStatus';
+
 export type CheckoutSuccessResult = {
   transactionId: string;
+  status?: TransactionStatus;
   claimedTokens?: {
     collectionAddress: string;
     collectionTitle: string;

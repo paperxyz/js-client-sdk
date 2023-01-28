@@ -1,6 +1,7 @@
 import { PAPER_APP_URL } from '../constants/settings';
 import { CheckoutSuccessResult } from '../interfaces/CheckoutSuccessResult';
 import { PaperSDKError, PaperSDKErrorCode } from '../interfaces/PaperSDKError';
+import { TransactionStatus } from '../interfaces/TransactionStatus';
 import { Drawer } from './Drawer';
 
 async function sleepForSeconds(seconds: number) {
@@ -51,6 +52,7 @@ export async function renderPaperCheckoutLink({
           case 'paymentSuccess': {
             const transactionId = e.data.id;
             PaperCheckoutResult.transactionId = transactionId;
+            PaperCheckoutResult.status = TransactionStatus.PAYMENT_SUCCEEDED;
             // TODO: Maybe we can resolve early if the user's want
             break;
           }
@@ -58,6 +60,7 @@ export async function renderPaperCheckoutLink({
             const { id: transactionId, claimedTokens } = e.data;
             PaperCheckoutResult.transactionId = transactionId;
             PaperCheckoutResult.claimedTokens = claimedTokens;
+            PaperCheckoutResult.status = TransactionStatus.TRANSFER_SUCCEEDED;
             // let the user see the completed NFT for some short time before closing it
             await sleepForSeconds(3.5);
             resolve(result);
