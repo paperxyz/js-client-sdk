@@ -67,6 +67,11 @@ export async function renderPaperCheckoutLink({
             drawer.close();
             break;
           }
+          case 'redirectAfterSuccess': {
+            const redirectUrl = e.data.redirectUrl;
+            window.location.replace(redirectUrl);
+            break;
+          }
           case 'modalClosed': {
             const checkoutResult = getPaperCheckoutResult();
             if (checkoutResult.transactionId) {
