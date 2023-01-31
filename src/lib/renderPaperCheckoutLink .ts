@@ -1,7 +1,4 @@
 import { PAPER_APP_URL } from '../constants/settings';
-import { CheckoutSuccessResult } from '../interfaces/CheckoutSuccessResult';
-import { PaperSDKError, PaperSDKErrorCode } from '../interfaces/PaperSDKError';
-import { TransactionStatus } from '../interfaces/TransactionStatus';
 import { Drawer } from './Drawer';
 
 async function sleepForSeconds(seconds: number) {
@@ -11,85 +8,62 @@ async function sleepForSeconds(seconds: number) {
     }, seconds * 1000);
   });
 }
-const PaperCheckoutResult: CheckoutSuccessResult = { transactionId: '' };
-function getPaperCheckoutResult() {
-  return PaperCheckoutResult;
-}
 
-export async function renderPaperCheckoutLink({
+export function renderPaperCheckoutLink({
   checkoutLinkUrl,
-}: // type = 'DRAWER',
-{
+  onPaymentSucceeded,
+  onPaymentFailed,
+  onTransferSucceeded,
+  onModalClosed,
+}: {
   checkoutLinkUrl: string;
-  // type: 'MODAL' | 'DRAWER';
-}): Promise<CheckoutSuccessResult> {
-  const promiseToReturn = new Promise<CheckoutSuccessResult>(
-    async (resolve, rej) => {
-      const drawer = new Drawer();
+  onPaymentSucceeded?: (transactionId: string) => void;
+  onPaymentFailed?: (transactionId: string) => void;
+  onTransferSucceeded?: (transactionId: string, claimedTokens: any) => void;
+  onModalClosed?: () => void;
+}) {
+  const drawer = new Drawer();
 
-      drawer.setOnCloseCallback(() => {
-        const checkoutResult = getPaperCheckoutResult();
-        if (!!checkoutResult.transactionId) {
-          resolve(checkoutResult);
-        } else {
-          rej({
-            code: PaperSDKErrorCode.UserAbandonedCheckout,
-            error: new Error(PaperSDKErrorCode.UserAbandonedCheckout),
-          } as PaperSDKError);
-        }
-      });
+  const formattedCheckoutLinkUrl = new URL(checkoutLinkUrl);
+  formattedCheckoutLinkUrl.searchParams.set('display', 'DRAWER');
+  drawer.open({ iframeUrl: formattedCheckoutLinkUrl.href });
 
-      const formattedCheckoutLinkUrl = new URL(checkoutLinkUrl);
-      formattedCheckoutLinkUrl.searchParams.set('display', 'DRAWER');
-      drawer.open({ iframeUrl: formattedCheckoutLinkUrl.href });
+  const messageHandler = async (e: MessageEvent) => {
+    if (e.origin !== PAPER_APP_URL) {
+      return;
+    }
+    const result = e.data;
+    switch (result.eventType) {
+      case 'paymentSuccess': {
+        const transactionId = e.data.id;
+        onPaymentSucceeded?.(transactionId);
+        break;
+      }
+      case 'claimSuccessful': {
+        const { id: transactionId, claimedTokens } = e.data;
+        onTransferSucceeded?.(transactionId, claimedTokens);
+        await sleepForSeconds(3.5);
+        drawer.close();
+        break;
+      }
+      case 'redirectAfterSuccess': {
+        const redirectUrl = e.data.redirectUrl;
+        window.location.assign(redirectUrl);
+        break;
+      }
+      case 'paymentFailed': {
+        const transactionId = e.data.id;
+        onPaymentFailed?.(transactionId);
+        break;
+      }
+      case 'modalClosed': {
+        onModalClosed?.();
+        break;
+      }
+      default:
+        throw new Error(`Unsupported eventType ${result.eventType}`);
+    }
+  };
 
-      const messageHandler = async (e: MessageEvent) => {
-        if (e.origin !== PAPER_APP_URL) {
-          return;
-        }
-        const result = e.data;
-        switch (result.eventType) {
-          case 'paymentSuccess': {
-            const transactionId = e.data.id;
-            PaperCheckoutResult.transactionId = transactionId;
-            PaperCheckoutResult.status = TransactionStatus.PAYMENT_SUCCEEDED;
-            // TODO: Maybe we can resolve early if the user's want
-            break;
-          }
-          case 'claimSuccessful': {
-            const { id: transactionId, claimedTokens } = e.data;
-            PaperCheckoutResult.transactionId = transactionId;
-            PaperCheckoutResult.claimedTokens = claimedTokens;
-            PaperCheckoutResult.status = TransactionStatus.TRANSFER_SUCCEEDED;
-            // let the user see the completed NFT for some short time before closing it
-            await sleepForSeconds(3.5);
-            resolve(result);
-            drawer.close();
-            break;
-          }
-          case 'redirectAfterSuccess': {
-            const redirectUrl = e.data.redirectUrl;
-            window.location.replace(redirectUrl);
-            break;
-          }
-          case 'modalClosed': {
-            const checkoutResult = getPaperCheckoutResult();
-            if (checkoutResult.transactionId) {
-              resolve(checkoutResult);
-            } else {
-              rej({
-                code: PaperSDKErrorCode.UserAbandonedCheckout,
-                error: new Error(PaperSDKErrorCode.UserAbandonedCheckout),
-              } as PaperSDKError);
-            }
-            break;
-          }
-          default:
-            throw new Error(`Unsupported eventType ${result.eventType}`);
-        }
-      };
-      window.addEventListener('message', messageHandler);
-    },
-  );
-  return promiseToReturn;
+  window.addEventListener('message', messageHandler);
 }
