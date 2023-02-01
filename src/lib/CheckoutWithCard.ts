@@ -68,16 +68,16 @@ export function createCheckoutWithCardMessageHandler({
   onReview,
   onPaymentSuccess,
 }: CheckoutWithCardMessageHandlerArgs) {
-  const modal = new Modal(undefined, {
-    body: {
-      backgroundColor: 'transparent',
-      borderRadius: '0px',
-      maxWidth: 'none',
-      height: '100vh',
-      maxHeight: 'none',
-      padding: '0px',
-    },
-  });
+  let modal: Modal;
+  const modalBody = {
+    backgroundColor: 'transparent',
+    borderRadius: '0px',
+    maxWidth: 'none',
+    height: '100vh',
+    maxHeight: 'none',
+    padding: '0px',
+  };
+
   return (event: MessageEvent) => {
     if (!event.origin.startsWith(PAPER_APP_URL)) {
       return;
@@ -114,6 +114,10 @@ export function createCheckoutWithCardMessageHandler({
         break;
 
       case 'openModalWithUrl':
+        modal = new Modal(undefined, {
+          body: modalBody,
+        });
+
         modal.open({ iframeUrl: data.url });
 
         if (onOpenKycModal) {
