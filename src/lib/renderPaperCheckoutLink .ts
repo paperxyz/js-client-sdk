@@ -17,9 +17,15 @@ export function renderPaperCheckoutLink({
   onModalClosed,
 }: {
   checkoutLinkUrl: string;
-  onPaymentSucceeded?: (transactionId: string) => void;
-  onPaymentFailed?: (transactionId: string) => void;
-  onTransferSucceeded?: (transactionId: string, claimedTokens: any) => void;
+  onPaymentSucceeded?: ({ transactionId }: { transactionId: string }) => void;
+  onPaymentFailed?: ({ transactionId }: { transactionId: string }) => void;
+  onTransferSucceeded?: ({
+    transactionId,
+    claimedTokens,
+  }: {
+    transactionId: string;
+    claimedTokens: any;
+  }) => void;
   onModalClosed?: () => void;
 }) {
   const drawer = new Drawer();
@@ -36,12 +42,12 @@ export function renderPaperCheckoutLink({
     switch (result.eventType) {
       case 'paymentSuccess': {
         const transactionId = e.data.id;
-        onPaymentSucceeded?.(transactionId);
+        onPaymentSucceeded?.({ transactionId });
         break;
       }
       case 'claimSuccessful': {
         const { id: transactionId, claimedTokens } = e.data;
-        onTransferSucceeded?.(transactionId, claimedTokens);
+        onTransferSucceeded?.({ transactionId, claimedTokens });
         await sleepForSeconds(3.5);
         drawer.close();
         break;
@@ -53,7 +59,7 @@ export function renderPaperCheckoutLink({
       }
       case 'paymentFailed': {
         const transactionId = e.data.id;
-        onPaymentFailed?.(transactionId);
+        onPaymentFailed?.({ transactionId });
         break;
       }
       case 'modalClosed': {
