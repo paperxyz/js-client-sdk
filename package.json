@@ -18,6 +18,7 @@
     "build:types": "yarn tsc",
     "build:lib": "yarn compile:lib --minify",
     "build": "yarn lint && yarn build:lib && yarn build:types",
+    "prepublish": "yarn build",
     "release": "npm run build && npm publish"
   },
   "keywords": [],
