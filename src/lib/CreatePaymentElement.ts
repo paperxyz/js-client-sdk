@@ -20,7 +20,7 @@ export class PaperPaymentElement {
   }: {
     handler: (
       iframe: HTMLIFrameElement,
-    ) => (event: MessageEvent<any>) => void | Promise<void>;
+    ) => (event: MessageEvent) => void | Promise<void>;
     link: URL;
     iframeId: string;
   }) {

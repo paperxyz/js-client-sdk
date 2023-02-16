@@ -104,7 +104,11 @@ export function createCheckoutWithCardMessageHandler({
         break;
 
       case 'openModalWithUrl':
-        modal = new Modal();
+        modal = new Modal(undefined, {
+          body: {
+            colorScheme: 'light',
+          },
+        });
         modal.open({ iframeUrl: data.url });
 
         // We really don't need this anymore. If anything: These cause two modals to be opened leading to potential errors
