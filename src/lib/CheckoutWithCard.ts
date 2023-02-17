@@ -110,20 +110,10 @@ export function createCheckoutWithCardMessageHandler({
           },
         });
         modal.open({ iframeUrl: data.url });
-
-        // We really don't need this anymore. If anything: These cause two modals to be opened leading to potential errors
-        // if (onOpenKycModal) {
-        //   onOpenKycModal({ iframeLink: data.url });
-        // }
         break;
 
       case 'completedSDKModal':
         modal.close();
-
-        // if (onCloseKycModal) {
-        //   onCloseKycModal();
-        // }
-
         if (data.postToIframe) {
           postMessageToIframe(iframe, data.eventType, data);
         }
