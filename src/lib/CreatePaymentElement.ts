@@ -20,7 +20,7 @@ export class PaperPaymentElement {
   }: {
     handler: (
       iframe: HTMLIFrameElement,
-    ) => (event: MessageEvent<any>) => void | Promise<void>;
+    ) => (event: MessageEvent) => void | Promise<void>;
     link: URL;
     iframeId: string;
   }) {
@@ -30,7 +30,7 @@ export class PaperPaymentElement {
     iframe.allow = 'payment';
     iframe.setAttribute(
       'style',
-      'margin-left:auto; margin-right:auto; width:100%; transition-property:all; transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1); transition-duration:150ms;',
+      'margin-left:auto; margin-right:auto; width:100%; transition-property:all; transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1); transition-duration:150ms; color-scheme: light;',
     );
     iframe.onload = (event: Event) => {
       if (this.onLoad) {

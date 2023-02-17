@@ -24,8 +24,11 @@ export class Modal {
     this.main.id = MODAL_ID;
 
     this.overlay = document.createElement('div');
+    this.overlay.id = `${MODAL_ID}-overlay`;
     this.body = document.createElement('div');
+    this.body.id = `${MODAL_ID}-body`;
     this.iframe = document.createElement('iframe');
+    this.iframe.id = `${MODAL_ID}-iframe`;
     this.iframe.allow = 'camera; microphone; payment';
 
     this.style = document.createElement('style');
