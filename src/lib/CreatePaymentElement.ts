@@ -2,9 +2,8 @@ const packageJson = require('../../package.json');
 
 export interface PaperPaymentElementConstructorArgs {
   onLoad?: (event?: Event) => void;
-  elementOrId?: string | HTMLElement;
+  elementOrId: string | HTMLElement;
 }
-
 export class PaperPaymentElement {
   private elementOrId?: PaperPaymentElementConstructorArgs['elementOrId'];
   private onLoad?: PaperPaymentElementConstructorArgs['onLoad'];
