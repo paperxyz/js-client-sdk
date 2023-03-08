@@ -56,9 +56,8 @@ export async function getSigner({
     }
     // TODO: Stop hacking LoL
     const chainName = (payloadObj as any).pricingDetails.chainName;
-    console.log('chainName', chainName);
-    const chains = isTestnet(chainName) ? [goerli] : [mainnet];
-    console.log('chains', chains);
+    const isTestnetChain = isTestnet(chainName);
+    const chains = isTestnetChain ? [goerli] : [mainnet];
     const { provider, webSocketProvider } = configureChains(
       // wagmi typing needs at least a testnet LoL
       [mainnet, goerli],
@@ -79,7 +78,9 @@ export async function getSigner({
     const coinbaseConnector = new CoinbaseWalletConnector({
       options: {
         appName: appName ?? 'Paper',
-        jsonRpcUrl: '',
+        jsonRpcUrl: isTestnetChain
+          ? `https://eth-goerli.alchemyapi.io/v2/${alchemyApiKey}`
+          : `https://eth-mainnet.alchemyapi.io/v2/${alchemyApiKey}`,
       },
     });
 
@@ -94,14 +95,25 @@ export async function getSigner({
     });
     await client.autoConnect();
     const existingSigner = await fetchSigner();
-    console.log('existingSigner', existingSigner);
 
     const connectWalletPageId = 'paper-connect-wallet-page';
     const existingPage = document.getElementById(connectWalletPageId);
-    if (existingPage) {
+
+    if (existingPage && existingSigner) {
+      try {
+        if ((await existingSigner.getChainId()) !== chains[0].id) {
+          await switchNetwork({ chainId: chains[0].id });
+        }
+        existingPage.style.display = 'none';
+        return existingSigner;
+      } catch (e) {
+        console.error(e);
+        return;
+      }
+    } else if (existingPage) {
       return;
     }
-    return new Promise<ethers.Signer>((res, rej) => {
+    return new Promise<ethers.Signer>(async (res, rej) => {
       const connectWalletPage = document.createElement('div');
       connectWalletPage.id = connectWalletPageId;
       connectWalletPage.style.padding = '2em';
@@ -110,10 +122,6 @@ export async function getSigner({
       connectWalletPage.style.gap = '0.7em';
 
       container.appendChild(connectWalletPage);
-      if (existingSigner) {
-        connectWalletPage.style.display = 'none';
-        return res(existingSigner);
-      }
 
       for (const connector of client.connectors) {
         const connectWalletButton = document.createElement('button');
@@ -123,15 +131,16 @@ export async function getSigner({
           console.log(connector.name, 'clicked');
           try {
             await connect({
-              chainId: goerli.id,
               connector: connector,
             });
           } catch (e) {
             console.error(e);
           }
           const signer = await fetchSigner();
-          console.log('signer', signer);
           if (signer) {
+            if ((await signer.getChainId()) !== chains[0].id) {
+              await switchNetwork({ chainId: chains[0].id });
+            }
             connectWalletPage.style.display = 'none';
             res(signer);
           }

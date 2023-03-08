@@ -12,10 +12,10 @@ import {
   PaperSDKError,
   PayWithCryptoErrorCode,
 } from '../interfaces/PaperSDKError';
+import { getSigner } from '../utils/getSigner';
 import { handlePayWithCryptoError } from '../utils/handleCheckoutWithEthError';
 import { LinksManager } from '../utils/LinksManager';
 import { postMessageToIframe } from '../utils/postMessageToIframe';
-import { getSigner } from '../utils/getSigner';
 import {
   PaperPaymentElement,
   PaperPaymentElementConstructorArgs,
@@ -293,7 +293,6 @@ export async function renderCheckoutWithEth(
       }
     | ({ haveExistingWalletConnected: true } & CheckoutWithEthElementArgs),
 ) {
-  console.log('function called');
   if (args.haveExistingWalletConnected) {
     return createCheckoutWithEthElement(args);
   }
