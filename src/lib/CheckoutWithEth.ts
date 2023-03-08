@@ -150,7 +150,6 @@ export function createCheckoutWithEthMessageHandler({
       return;
     }
     const data = event.data;
-    console.log('data', data);
     switch (data.eventType) {
       case 'payWithEth': {
         if (data.error) {

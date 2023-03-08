@@ -1,11 +1,10 @@
 import type { ethers } from 'ethers';
-import { KJUR } from 'jsrsasign';
+import { ALCHEMY_API_KEY } from '../constants/settings';
 import { createConnectWalletButton } from './CheckoutWithEth/createConnectWalletButton';
 import { createWalletConnectorContainer } from './CheckoutWithEth/createWalletConnectorContainer';
-import { importWagmiLibraries } from './CheckoutWithEth/importWagmi';
 import { isTestnet } from './CheckoutWithEth/isTestnet';
-import { mapWalletConnectorNameToPaperWalletName } from './CheckoutWithEth/mapWalletConnectorToPaperWalletName';
 import { setUpSigner } from './CheckoutWithEth/setUpSigner';
+import { walletDisplayName } from './CheckoutWithEth/walletDisplayName';
 
 export async function getSignerInfo({
   container,
@@ -17,6 +16,8 @@ export async function getSignerInfo({
   appName?: string;
 }) {
   try {
+    // Wagmi only supports esm modules which we cannot really use bcause we compile down to cjs too (for now).
+    // One of the way aside from cutting out cjs is to use dynamic import as below
     const {
       fetchSigner,
       configureChains,
@@ -24,14 +25,19 @@ export async function getSignerInfo({
       createClient,
       goerli,
       mainnet,
-      MetaMaskConnector,
-      WalletConnectLegacyConnector,
-      CoinbaseWalletConnector,
-    } = await importWagmiLibraries();
+    } = await import('@wagmi/core');
+    const { MetaMaskConnector } = await import(
+      '@wagmi/core/connectors/metaMask'
+    );
+    const { WalletConnectLegacyConnector } = await import(
+      '@wagmi/core/connectors/walletConnectLegacy'
+    );
+    const { CoinbaseWalletConnector } = await import(
+      '@wagmi/core/connectors/coinbaseWallet'
+    );
     const { alchemyProvider } = await import('@wagmi/core/providers/alchemy');
 
-    const alchemyApiKey = 'k5d8RoDGOyxZmVWy2UPNowQlqFoZM3TX';
-    const payloadObj = KJUR.jws.JWS.readSafeJSONString(
+    const payloadObj = JSON.parse(
       Buffer.from(sdkClientSecret.split('.')[1], 'base64').toString('utf-8'),
     );
     if (!payloadObj) {
@@ -46,7 +52,7 @@ export async function getSignerInfo({
       [mainnet, goerli],
       [
         alchemyProvider({
-          apiKey: alchemyApiKey,
+          apiKey: ALCHEMY_API_KEY,
         }),
       ],
     );
@@ -62,8 +68,8 @@ export async function getSignerInfo({
       options: {
         appName: appName ?? 'Paper',
         jsonRpcUrl: isTestnetChain
-          ? `https://eth-goerli.alchemyapi.io/v2/${alchemyApiKey}`
-          : `https://eth-mainnet.alchemyapi.io/v2/${alchemyApiKey}`,
+          ? `https://eth-goerli.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
+          : `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
         chainId: chains[0].id,
       },
     });
@@ -106,8 +112,7 @@ export async function getSignerInfo({
 
         for (const connector of client.connectors) {
           const displayName =
-            mapWalletConnectorNameToPaperWalletName(connector.name) ??
-            connector.name;
+            walletDisplayName(connector.name) ?? connector.name;
           const connectWalletButton = createConnectWalletButton(displayName);
           connectWalletButton.onclick = async () => {
             try {

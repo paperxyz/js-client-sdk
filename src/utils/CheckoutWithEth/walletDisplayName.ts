@@ -1,4 +1,4 @@
-export function mapWalletConnectorNameToPaperWalletName(connectorName: string) {
+export function walletDisplayName(connectorName: string) {
   switch (connectorName) {
     case 'MetaMask':
       return 'Metamask';
