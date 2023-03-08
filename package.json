@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/paperxyz/js-client-sdk",
   "devDependencies": {
+    "@types/jsrsasign": "^10.5.5",
     "@types/node": "^18.11.17",
     "@typescript-eslint/eslint-plugin": "5.47.0",
     "@typescript-eslint/parser": "5.47.0",
@@ -41,6 +42,8 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "ethers": "^5.7.2"
+    "@wagmi/core": "^0.10.1",
+    "ethers": "^5.7.2",
+    "jsrsasign": "^10.6.1"
   }
 }

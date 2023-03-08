@@ -15,6 +15,7 @@ import {
 import { handlePayWithCryptoError } from '../utils/handleCheckoutWithEthError';
 import { LinksManager } from '../utils/LinksManager';
 import { postMessageToIframe } from '../utils/postMessageToIframe';
+import { getSigner } from '../utils/getSigner';
 import {
   PaperPaymentElement,
   PaperPaymentElementConstructorArgs,
@@ -280,4 +281,39 @@ export async function createCheckoutWithEthElement({
     iframeId: checkoutWithEthId,
     link: checkoutWithEthUrl,
   });
+}
+
+export async function renderCheckoutWithEth(
+  args:
+    | {
+        haveExistingWalletConnected: false;
+        containerId: string;
+        sdkClientSecret: string;
+        appName?: string;
+      }
+    | ({ haveExistingWalletConnected: true } & CheckoutWithEthElementArgs),
+) {
+  console.log('function called');
+  if (args.haveExistingWalletConnected) {
+    return createCheckoutWithEthElement(args);
+  }
+  const container = document.getElementById(args.containerId);
+  if (!container) {
+    throw new Error('Invalid element ID given');
+  }
+  const signer = await getSigner({
+    container,
+    sdkClientSecret: args.sdkClientSecret,
+    appName: args.appName,
+  });
+  console.log('signer', signer);
+  if (signer) {
+    return createCheckoutWithEthElement({
+      payingWalletSigner: signer as ethers.Signer,
+      sdkClientSecret: args.sdkClientSecret,
+      appName: args.appName,
+      elementOrId: args.containerId,
+    });
+  }
+  return;
 }
