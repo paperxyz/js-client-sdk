@@ -1,7 +1,7 @@
 {
   "name": "@paperxyz/js-client-sdk",
   "description": "Paper.xyz js sdk for Checkout Elements",
-  "version": "0.0.50-balmain-1",
+  "version": "0.0.50-balmain-4",
   "files": [
     "dist/**/*"
   ],
@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/paperxyz/js-client-sdk",
   "devDependencies": {
-    "@types/jsrsasign": "^10.5.5",
     "@types/node": "^18.11.17",
     "@typescript-eslint/eslint-plugin": "5.47.0",
     "@typescript-eslint/parser": "5.47.0",

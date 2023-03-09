@@ -1,4 +1,3 @@
-import type { SendTransactionResult } from '@wagmi/core';
 import { ethers } from 'ethers';
 import {
   CHECKOUT_WITH_ETH_IFRAME_URL,
@@ -48,7 +47,7 @@ export async function checkAndSendEth({
     transactionResponse,
     transactionId,
   }: {
-    transactionResponse: SendTransactionResult;
+    transactionResponse: ethers.providers.TransactionResponse;
     transactionId: string;
   }) => void;
   onError?: (error: PaperSDKError) => void;
@@ -93,8 +92,14 @@ export async function checkAndSendEth({
     const result = await sendTransaction(config);
 
     if (onSuccess && result) {
+      if (!payingWalletSigner.provider) {
+        throw new Error('Missing provider for signer');
+      }
+      const response = await payingWalletSigner.provider.getTransaction(
+        result.hash,
+      );
       onSuccess({
-        transactionResponse: result,
+        transactionResponse: response,
         transactionId: data.transactionId,
       });
     }
@@ -123,7 +128,7 @@ export interface CheckoutWithEthMessageHandlerArgs {
     transactionResponse,
     transactionId,
   }: {
-    transactionResponse: SendTransactionResult;
+    transactionResponse: ethers.providers.TransactionResponse;
     transactionId: string;
   }) => void;
   onError?: (error: PaperSDKError) => void;
@@ -306,9 +311,15 @@ export async function createCheckoutWithEthElement({
   });
 }
 
-export async function renderCheckoutWithEth(args: CheckoutWithEthElementArgs) {
+export async function renderCheckoutWithEth(
+  args: Omit<CheckoutWithEthElementArgs, 'payingWalletSigner'> &
+    Partial<Pick<CheckoutWithEthElementArgs, 'payingWalletSigner'>>,
+) {
   if (args.payingWalletSigner) {
-    return createCheckoutWithEthElement(args);
+    return createCheckoutWithEthElement({
+      ...args,
+      payingWalletSigner: args.payingWalletSigner,
+    });
   }
 
   let container: HTMLElement | null;
