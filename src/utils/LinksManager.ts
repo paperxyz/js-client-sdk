@@ -36,10 +36,9 @@ export class LinksManager {
   }
 
   addLocale(locale?: Locale) {
-    this.link.searchParams.set(
-      'locale',
-      locale?.toString() || Locale.EN.toString(),
-    );
+    if (locale) {
+      this.link.searchParams.set('locale', locale.toString());
+    }
   }
 
   addOTP() {
