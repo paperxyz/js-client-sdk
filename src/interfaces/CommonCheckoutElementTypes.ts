@@ -9,4 +9,10 @@ export interface ICustomizationOptions {
 export enum Locale {
   EN = 'en',
   FR = 'fr',
+  ES = 'es',
+  IT = 'it',
+  DE = 'de',
+  JA = 'ja',
+  KO = 'ko',
+  ZH = 'zh',
 }
