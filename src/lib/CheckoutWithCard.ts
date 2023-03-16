@@ -57,7 +57,7 @@ export interface CheckoutWithCardMessageHandlerArgs {
   onError?: (error: PaperSDKError) => void;
   onOpenKycModal?: (props: KycModal) => void;
   onCloseKycModal?: () => void;
-  onBeforeModalOpen?: (props: { url: string }) => boolean;
+  onBeforeModalOpen?: (props: { url: string }) => void;
   useAltDomain?: boolean;
 }
 
