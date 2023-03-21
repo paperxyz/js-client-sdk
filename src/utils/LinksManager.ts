@@ -29,6 +29,15 @@ export class LinksManager {
     if (options.fontFamily) {
       this.link.searchParams.set('fontFamily', options.fontFamily);
     }
+    if (options.inputBackgroundColor) {
+      this.link.searchParams.set(
+        'inputBackgroundColor',
+        options.inputBackgroundColor,
+      );
+    }
+    if (options.inputBorderColor) {
+      this.link.searchParams.set('inputBorderColor', options.inputBorderColor);
+    }
   }
 
   addClientSecret(sdkClientSecret: string) {
