@@ -73,9 +73,7 @@ export class Drawer {
       this.main.remove();
 
       window.clearTimeout(this.closeTimeout);
-      if (this.onCloseCallback) {
-        this.onCloseCallback();
-      }
+      this.onCloseCallback?.();
     }, 250);
   }
 

@@ -33,6 +33,9 @@ export function renderPaperCheckoutLink({
   const formattedCheckoutLinkUrl = new URL(checkoutLinkUrl);
   formattedCheckoutLinkUrl.searchParams.set('display', 'DRAWER');
   drawer.open({ iframeUrl: formattedCheckoutLinkUrl.href });
+  if (onModalClosed) {
+    drawer.setOnCloseCallback(onModalClosed);
+  }
 
   const messageHandler = async (e: MessageEvent) => {
     if (e.origin !== PAPER_APP_URL) {
