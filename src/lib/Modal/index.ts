@@ -7,9 +7,9 @@ export class Modal {
   protected main: HTMLDivElement;
   protected overlay: HTMLDivElement;
   protected iframe: HTMLIFrameElement;
+  protected spinner: HTMLDivElement;
 
   protected style: HTMLStyleElement;
-  protected closeTimeout: number | undefined;
   styles = getDefaultModalStyles();
   body: HTMLDivElement;
 
@@ -27,6 +27,8 @@ export class Modal {
     this.overlay.id = `${MODAL_ID}-overlay`;
     this.body = document.createElement('div');
     this.body.id = `${MODAL_ID}-body`;
+    this.spinner = document.createElement('div');
+    this.spinner.id = `${MODAL_ID}-spinner`;
     this.iframe = document.createElement('iframe');
     this.iframe.id = `${MODAL_ID}-iframe`;
     this.iframe.allow = 'camera; microphone; payment';
@@ -37,12 +39,16 @@ export class Modal {
     this.assignStyles(this.main, this.styles.main);
     this.assignStyles(this.overlay, this.styles.overlay);
     this.assignStyles(this.body, this.styles.body);
+    this.assignStyles(this.spinner, this.styles.spinner);
     this.assignStyles(this.iframe, this.styles.iframe);
   }
 
   open({ iframeUrl }: { iframeUrl?: string } = {}) {
     if (iframeUrl) {
+      this.body.appendChild(this.spinner);
       this.iframe.src = iframeUrl;
+      // Remove the spinner when the iframe loads.
+      this.iframe.onload = () => this.body.removeChild(this.spinner);
       this.body.appendChild(this.iframe);
     }
 
@@ -59,11 +65,9 @@ export class Modal {
   close() {
     this.body.style.animation = 'pew-modal-slideOut 0.2s forwards';
 
-    this.closeTimeout = window.setTimeout(() => {
-      document.body.style.overflow = 'visible';
+    window.setTimeout(() => {
+      // document.body.style.overflow = 'visible';
       this.main.remove();
-
-      window.clearTimeout(this.closeTimeout);
     }, 250);
   }
 
