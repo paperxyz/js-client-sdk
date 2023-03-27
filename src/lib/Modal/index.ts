@@ -64,17 +64,18 @@ export class Modal {
 
   close() {
     this.body.style.animation = 'pew-modal-slideOut 0.2s forwards';
-
-    window.setTimeout(() => {
-      // document.body.style.overflow = 'visible';
-      this.main.remove();
-    }, 250);
+    window.setTimeout(() => this.main.remove(), 250);
   }
 
   protected mergeStyles(styles: Partial<ModalStyles>) {
     this.styles.body = {
       ...this.styles.body,
       ...(styles.body || {}),
+    };
+
+    this.styles.spinner = {
+      ...this.styles.spinner,
+      ...(styles.spinner || {}),
     };
 
     this.styles.overlay = {
