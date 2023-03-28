@@ -110,14 +110,14 @@ export function createCheckoutWithCardMessageHandler({
           onBeforeModalOpen({
             url: data.url,
           });
+        } else {
+          modal = new Modal(undefined, {
+            body: {
+              colorScheme: 'light',
+            },
+          });
+          modal.open({ iframeUrl: data.url });
         }
-
-        modal = new Modal(undefined, {
-          body: {
-            colorScheme: 'light',
-          },
-        });
-        modal.open({ iframeUrl: data.url });
         break;
 
       case 'completedSDKModal':
