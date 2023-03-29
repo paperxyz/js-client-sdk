@@ -106,7 +106,11 @@ export function createCheckoutWithCardMessageHandler({
         break;
 
       case 'openModalWithUrl':
-        if (onBeforeModalOpen) {
+        if (
+          onBeforeModalOpen &&
+          data.url &&
+          data.url.includes('promptKYCModal')
+        ) {
           onBeforeModalOpen({
             url: data.url,
           });
