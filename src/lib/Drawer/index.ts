@@ -1,7 +1,11 @@
-import { ModalStyles, StyleObject } from '../../interfaces/Modal';
+import { ModalStyles } from '../../interfaces/Modal';
 import { getDefaultModalStyles } from './styles';
 
-export const DRAWER_ID = 'paper-js-sdk-drawer';
+const MAIN_CLASSNAME = 'paper--drawer-main';
+const OVERLAY_CLASSNAME = 'paper--drawer-overlay';
+const BODY_CLASSNAME = 'paper--drawer-body';
+const CLOSE_CLASSNAME = 'paper--drawer-close';
+
 export class Drawer {
   protected container: HTMLElement;
   protected main: HTMLDivElement;
@@ -22,15 +26,19 @@ export class Drawer {
     }
 
     this.main = document.createElement('div');
-    this.main.id = DRAWER_ID;
+    this.main.className = MAIN_CLASSNAME;
 
     this.overlay = document.createElement('div');
+    this.overlay.className = OVERLAY_CLASSNAME;
+
     this.body = document.createElement('div');
+    this.body.className = BODY_CLASSNAME;
+
     this.closeButton = document.createElement('button');
+    this.closeButton.className = CLOSE_CLASSNAME;
     this.closeButton.innerHTML = '&#x2715;';
-    this.closeButton.onclick = () => {
-      this.close();
-    };
+    this.closeButton.onclick = () => this.close();
+
     this.iframe = document.createElement('iframe');
     this.iframe.allow = 'camera; microphone; payment';
 
