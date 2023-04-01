@@ -42,6 +42,9 @@ export function renderPaperCheckoutLink({
       return;
     }
     const result = e.data;
+    if (!result.eventType) {
+      return;
+    }
     switch (result.eventType) {
       case 'paymentSuccess': {
         const transactionId = e.data.id;

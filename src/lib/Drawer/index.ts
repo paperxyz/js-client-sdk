@@ -1,5 +1,5 @@
 import { ModalStyles, StyleObject } from '../../interfaces/Modal';
-import { getDefaultModalStyles, modalKeyframeAnimations } from './styles';
+import { getDefaultModalStyles } from './styles';
 
 export const DRAWER_ID = 'paper-js-sdk-drawer';
 export class Drawer {
@@ -10,7 +10,6 @@ export class Drawer {
   protected iframe: HTMLIFrameElement;
   protected onCloseCallback: (() => void) | undefined;
 
-  protected style: HTMLStyleElement;
   protected closeTimeout: number | undefined;
   styles = getDefaultModalStyles();
   body: HTMLDivElement;
@@ -28,15 +27,12 @@ export class Drawer {
     this.overlay = document.createElement('div');
     this.body = document.createElement('div');
     this.closeButton = document.createElement('button');
-    this.closeButton.innerHTML = 'x';
+    this.closeButton.innerHTML = '&#x2715;';
     this.closeButton.onclick = () => {
       this.close();
     };
     this.iframe = document.createElement('iframe');
     this.iframe.allow = 'camera; microphone; payment';
-
-    this.style = document.createElement('style');
-    this.style.innerHTML = modalKeyframeAnimations;
 
     this.assignStyles(this.main, this.styles.main);
     this.assignStyles(this.overlay, this.styles.overlay);
@@ -56,18 +52,29 @@ export class Drawer {
     this.addAccessibility();
 
     this.main.appendChild(this.overlay);
-    this.main.appendChild(this.style);
     this.main.appendChild(this.body);
     this.main.appendChild(this.closeButton);
 
     this.container.appendChild(this.main);
     document.body.style.overflow = 'hidden';
+
+    // Animate in.
+    this.overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    this.body.style.right = '0px';
+    this.body.style.opacity = '1';
+
     return this.iframe;
   }
 
   close() {
-    this.body.style.animation = 'pew-drawer-slideOut 0.2s forwards';
+    this.closeButton.remove();
 
+    // Animate out.
+    this.overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+    this.body.style.right = '-100px';
+    this.body.style.opacity = '0';
+
+    // Remove drawer from DOM.
     this.closeTimeout = window.setTimeout(() => {
       document.body.style.overflow = 'visible';
       this.main.remove();
@@ -101,6 +108,7 @@ export class Drawer {
       ...this.styles.iframe,
       ...(styles.iframe || {}),
     };
+
     this.styles.closeButton = {
       ...this.styles.closeButton,
       ...(styles.closeButton || {}),
