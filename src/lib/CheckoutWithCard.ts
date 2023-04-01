@@ -106,18 +106,22 @@ export function createCheckoutWithCardMessageHandler({
         break;
 
       case 'openModalWithUrl':
-        if (onBeforeModalOpen) {
+        if (
+          onBeforeModalOpen &&
+          data.url &&
+          data.url.includes('promptKYCModal')
+        ) {
           onBeforeModalOpen({
             url: data.url,
           });
+        } else {
+          modal = new Modal(undefined, {
+            body: {
+              colorScheme: 'light',
+            },
+          });
+          modal.open({ iframeUrl: data.url });
         }
-
-        modal = new Modal(undefined, {
-          body: {
-            colorScheme: 'light',
-          },
-        });
-        modal.open({ iframeUrl: data.url });
         break;
 
       case 'completedSDKModal':
