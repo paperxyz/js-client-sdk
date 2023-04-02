@@ -1,4 +1,4 @@
-import { ModalStyles } from '../../interfaces/Modal';
+import { ModalStyles, StyleObject } from '../../interfaces/Modal';
 import { getDefaultModalStyles } from './styles';
 
 const MAIN_CLASSNAME = 'paper--drawer-main';
@@ -37,7 +37,9 @@ export class Drawer {
     this.closeButton = document.createElement('button');
     this.closeButton.className = CLOSE_CLASSNAME;
     this.closeButton.innerHTML = '&#x2715;';
-    this.closeButton.onclick = () => this.close();
+    this.closeButton.onclick = () => {
+      this.close();
+    };
 
     this.iframe = document.createElement('iframe');
     this.iframe.allow = 'camera; microphone; payment';
