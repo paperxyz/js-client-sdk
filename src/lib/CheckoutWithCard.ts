@@ -57,6 +57,7 @@ export interface CheckoutWithCardMessageHandlerArgs {
   onError?: (error: PaperSDKError) => void;
   onOpenKycModal?: (props: KycModal) => void;
   onCloseKycModal?: () => void;
+  onBeforeModalOpen?: (props: { url: string }) => void;
   useAltDomain?: boolean;
 }
 
@@ -65,6 +66,7 @@ export function createCheckoutWithCardMessageHandler({
   onError,
   onReview,
   onPaymentSuccess,
+  onBeforeModalOpen,
 }: CheckoutWithCardMessageHandlerArgs) {
   let modal: Modal;
 
@@ -104,12 +106,22 @@ export function createCheckoutWithCardMessageHandler({
         break;
 
       case 'openModalWithUrl':
-        modal = new Modal(undefined, {
-          body: {
-            colorScheme: 'light',
-          },
-        });
-        modal.open({ iframeUrl: data.url });
+        if (
+          onBeforeModalOpen &&
+          data.url &&
+          data.url.includes('promptKYCModal')
+        ) {
+          onBeforeModalOpen({
+            url: data.url,
+          });
+        } else {
+          modal = new Modal(undefined, {
+            body: {
+              colorScheme: 'light',
+            },
+          });
+          modal.open({ iframeUrl: data.url });
+        }
         break;
 
       case 'completedSDKModal':
@@ -163,6 +175,7 @@ export function createCheckoutWithCardElement({
   options,
   onPaymentSuccess,
   onReview,
+  onBeforeModalOpen,
   useAltDomain = true,
 }: CheckoutWithCardElementArgs) {
   const checkoutWithCardId = 'checkout-with-card-iframe';
@@ -174,6 +187,7 @@ export function createCheckoutWithCardElement({
       onError,
       onPaymentSuccess,
       onReview,
+      onBeforeModalOpen,
       useAltDomain,
     });
 
